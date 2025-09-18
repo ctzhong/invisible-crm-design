@@ -31,6 +31,8 @@
         .timeline-status { font-size: 0.75rem; font-weight: 500; text-align: center; white-space: nowrap;}
         @keyframes fadeIn { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: translateY(0); } }
         .animate-fade-in { animation: fadeIn 0.35s ease-out; }
+        /* Hide DuoHives labels in inbox until dashboard is ready */
+        .hide-dh .dh-label { display: none !important; }
         .label-chip { display: inline-block; font-size: 10px; line-height: 1.1; font-weight: 600; color: #fff !important; border-radius: 6px; padding: 2px 6px; margin-right: 0.25rem; vertical-align: middle; border: 1px solid rgba(0,0,0,0.12); order: -1; }
         .label-chip + .label-chip { margin-left: 0.25rem; }
         .label-dot { display: inline-block; width: 12px; height: 12px; border-radius: 3px; margin-right: 12px; flex-shrink: 0; }
@@ -67,7 +69,72 @@
     </style>
 </head>
 <body class="bg-gray-100 font-sans text-sm text-gray-900">
-    <div class="flex h-screen w-full">
+    <!-- Auth + Onboarding Overlays -->
+    <div id="login-screen" class="fixed inset-0 z-50 bg-white flex items-center justify-center hidden">
+        <div class="bg-white shadow-xl rounded-2xl p-8 w-full max-w-sm text-center border border-gray-200">
+            <i class="ri-blaze-fill text-3xl text-indigo-600 mb-2"></i>
+            <h2 class="text-xl font-semibold mb-5">Sign in to DuoHives</h2>
+            <button id="btn-google-login" class="w-full flex items-center justify-center gap-2 border border-gray-300 rounded-lg py-2.5 hover:bg-gray-50 active:bg-gray-100">
+                <i class="ri-google-fill text-red-500 text-lg"></i>
+                <span class="text-sm font-medium">Continue with Google</span>
+            </button>
+            <p class="text-[11px] text-gray-500 mt-4">By continuing, you agree to our Terms & Privacy.</p>
+        </div>
+    </div>
+
+    <div id="onboarding-screen" class="fixed inset-0 z-40 bg-white flex items-center justify-center hidden">
+        <div class="bg-white shadow-xl rounded-2xl p-6 w-full max-w-xl border border-gray-200">
+            <div class="flex items-center mb-4">
+                <i class="ri-blaze-fill text-2xl text-indigo-600 mr-2"></i>
+                <h2 class="text-lg font-semibold">Getting your inbox ready</h2>
+            </div>
+            <div class="mb-4">
+                <div class="h-2 bg-gray-200 rounded-full overflow-hidden">
+                    <div id="ob-progress-bar" class="h-full bg-indigo-500 transition-all" style="width:0%"></div>
+                </div>
+                <div class="flex justify-between text-xs text-gray-500 mt-1">
+                    <span id="ob-progress-label">0%</span>
+                    <span>~10s</span>
+                </div>
+            </div>
+            <div class="grid grid-cols-2 gap-3 text-sm">
+                <div class="p-3 bg-gray-50 rounded-lg border border-gray-100">
+                    <div class="text-gray-500 text-xs">Fetched</div>
+                    <div id="ob-fetched" class="font-semibold">0/200</div>
+                </div>
+                <div class="p-3 bg-gray-50 rounded-lg border border-gray-100">
+                    <div class="text-gray-500 text-xs">Classified</div>
+                    <div id="ob-classified" class="font-semibold">0</div>
+                </div>
+                <div class="p-3 bg-gray-50 rounded-lg border border-gray-100">
+                    <div class="text-gray-500 text-xs">Sales-related</div>
+                    <div id="ob-sales" class="font-semibold">0</div>
+                </div>
+                <div class="p-3 bg-gray-50 rounded-lg border border-gray-100">
+                    <div class="text-gray-500 text-xs">Extracted & Enriched</div>
+                    <div id="ob-enriched" class="font-semibold">0</div>
+                </div>
+                <div class="p-3 bg-gray-50 rounded-lg border border-gray-100">
+                    <div class="text-gray-500 text-xs">Opportunities</div>
+                    <div id="ob-opps" class="font-semibold">0</div>
+                </div>
+                <div class="p-3 bg-gray-50 rounded-lg border border-gray-100">
+                    <div class="text-gray-500 text-xs">Contacts</div>
+                    <div id="ob-contacts" class="font-semibold">0</div>
+                </div>
+                <div class="p-3 bg-gray-50 rounded-lg border border-gray-100">
+                    <div class="text-gray-500 text-xs">Companies</div>
+                    <div id="ob-companies" class="font-semibold">0</div>
+                </div>
+            </div>
+            <div id="ob-success" class="hidden mt-5 p-3 bg-green-50 border border-green-200 rounded-lg text-sm text-green-700 flex items-center justify-between">
+                <div class="flex items-center"><i class="ri-check-line mr-2"></i>Ready! Your DuoHives pipeline is set.</div>
+                <button id="btn-go-dashboard" class="px-3 py-1.5 bg-indigo-600 text-white rounded-md text-xs hover:bg-indigo-500">Go to Dashboard</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="app-shell" class="flex h-screen w-full">
         <!-- Gmail Left Sidebar -->
     <aside class="w-[300px] bg-[#f0f2f5] flex-shrink-0 flex flex-col">
             <!-- ... existing Gmail sidebar code ... -->
@@ -139,7 +206,7 @@
                         <i class="ri-star-line mr-3 text-gray-400"></i>
                         <span class="font-bold w-56 truncate">Innovate Inc.</span>
                         <div class="flex-1 flex items-center truncate">
-                          <span class="label-chip bg-indigo-600">DuoHives/DH-101</span>
+                          <span class="label-chip bg-indigo-600 dh-label">DuoHives/DH-101</span>
                           <span class="ml-2 font-semibold text-gray-900">Partnership Proposal</span>
                           <span class="mx-2 text-gray-400">-</span>
                           <span class="text-gray-500 truncate">Details about our new synergy plan...</span>
@@ -151,7 +218,7 @@
                         <i class="ri-star-fill mr-3 text-yellow-400"></i>
                         <span class="font-bold w-56 truncate">Alex from QuantumLeap</span>
                         <div class="flex-1 flex items-center truncate">
-                          <span class="label-chip bg-indigo-600">DuoHives/DH-102</span>
+                          <span class="label-chip bg-indigo-600 dh-label">DuoHives/DH-102</span>
                           <span class="ml-2 font-semibold text-gray-900">Follow up on pricing</span>
                           <span class="mx-2 text-gray-400">-</span>
                           <span class="text-gray-500 truncate">Just checking in on the quote...</span>
@@ -164,7 +231,7 @@
                         <i class="ri-star-line mr-3 text-gray-400"></i>
                         <span class="w-56 truncate">Fusion Dynamics</span>
                         <div class="flex-1 flex items-center truncate">
-                          <span class="label-chip bg-indigo-600">DuoHives/DH-103</span>
+                          <span class="label-chip bg-indigo-600 dh-label">DuoHives/DH-103</span>
                           <span class="ml-2 font-semibold text-gray-900">Project Phoenix Kick-off</span>
                           <span class="mx-2 text-gray-400">-</span>
                           <span class="text-gray-500 truncate">Let's schedule a time to discuss...</span>
@@ -189,7 +256,7 @@
                         <i class="ri-star-line mr-3 text-gray-400"></i>
                         <span class="font-bold w-56 truncate">Maria Garcia</span>
                         <div class="flex-1 flex items-center truncate">
-                          <span class="label-chip bg-indigo-600">DuoHives/DH-NEW</span>
+                          <span class="label-chip bg-indigo-600 dh-label">DuoHives/DH-NEW</span>
                           <span class="ml-2 font-semibold text-gray-900">Inquiry about your services</span>
                           <span class="mx-2 text-gray-400">-</span>
                           <span class="text-gray-500 truncate">Found you via a referral and wanted to learn more...</span>
@@ -384,7 +451,7 @@
                         <i class="ri-star-line mr-3 text-gray-400"></i>
                         <span class="font-bold w-56 truncate">Emma — ACME</span>
                         <div class="flex-1 flex items-center truncate">
-                          <span class="label-chip bg-indigo-600">DuoHives/DH-101</span>
+                          <span class="label-chip bg-indigo-600 dh-label">DuoHives/DH-101</span>
                           <span class="ml-2 font-semibold text-gray-900">Proposal review + next steps</span>
                           <span class="mx-2 text-gray-400">-</span>
                           <span class="text-gray-500 truncate">We aligned internally, can you revise section 3?</span>
@@ -397,7 +464,7 @@
                         <i class="ri-star-fill mr-3 text-yellow-400"></i>
                         <span class="w-56 truncate">Chris @ Globex</span>
                         <div class="flex-1 flex items-center truncate">
-                          <span class="label-chip bg-indigo-600">DuoHives/DH-102</span>
+                          <span class="label-chip bg-indigo-600 dh-label">DuoHives/DH-102</span>
                           <span class="ml-2 font-semibold text-gray-900">Pricing revision v2</span>
                           <span class="mx-2 text-gray-400">-</span>
                           <span class="text-gray-500 truncate">Attached: revised tiering for 250 seats</span>
@@ -410,7 +477,7 @@
                         <i class="ri-star-line mr-3 text-gray-400"></i>
                         <span class="w-56 truncate">Olivia (Sales)</span>
                         <div class="flex-1 flex items-center truncate">
-                          <span class="label-chip bg-indigo-600">DuoHives/DH-103</span>
+                          <span class="label-chip bg-indigo-600 dh-label">DuoHives/DH-103</span>
                           <span class="ml-2 font-semibold text-gray-900">Discovery recap + action items</span>
                           <span class="mx-2 text-gray-400">-</span>
                           <span class="text-gray-500 truncate">Recap of Phoenix discovery and next meeting...</span>
@@ -423,7 +490,7 @@
                         <i class="ri-star-line mr-3 text-gray-400"></i>
                         <span class="font-bold w-56 truncate">New Lead — Referral</span>
                         <div class="flex-1 flex items-center truncate">
-                          <span class="label-chip bg-indigo-600">DuoHives/DH-NEW</span>
+                          <span class="label-chip bg-indigo-600 dh-label">DuoHives/DH-NEW</span>
                           <span class="ml-2 font-semibold text-gray-900">Interested in demo</span>
                           <span class="mx-2 text-gray-400">-</span>
                           <span class="text-gray-500 truncate">Saw your case study from ACME...</span>
@@ -436,7 +503,7 @@
                         <i class="ri-star-line mr-3 text-gray-400"></i>
                         <span class="w-56 truncate">Legal — Innovate Inc.</span>
                         <div class="flex-1 flex items-center truncate">
-                          <span class="label-chip bg-indigo-600">DuoHives/DH-101</span>
+                          <span class="label-chip bg-indigo-600 dh-label">DuoHives/DH-101</span>
                           <span class="ml-2 font-semibold text-gray-900">Contract redline v3</span>
                           <span class="mx-2 text-gray-400">-</span>
                           <span class="text-gray-500 truncate">See comments 12 and 14 on indemnity...</span>
@@ -449,7 +516,7 @@
                         <i class="ri-star-line mr-3 text-gray-400"></i>
                         <span class="w-56 truncate">Procurement — QuantumLeap</span>
                         <div class="flex-1 flex items-center truncate">
-                          <span class="label-chip bg-indigo-600">DuoHives/DH-102</span>
+                          <span class="label-chip bg-indigo-600 dh-label">DuoHives/DH-102</span>
                           <span class="ml-2 font-semibold text-gray-900">PO attached</span>
                           <span class="mx-2 text-gray-400">-</span>
                           <span class="text-gray-500 truncate">Please countersign and return...</span>
@@ -462,7 +529,7 @@
                         <i class="ri-star-fill mr-3 text-yellow-400"></i>
                         <span class="w-56 truncate">CFO — Fusion Dynamics</span>
                         <div class="flex-1 flex items-center truncate">
-                          <span class="label-chip bg-indigo-600">DuoHives/DH-103</span>
+                          <span class="label-chip bg-indigo-600 dh-label">DuoHives/DH-103</span>
                           <span class="ml-2 font-semibold text-gray-900">Budget confirmation</span>
                           <span class="mx-2 text-gray-400">-</span>
                           <span class="text-gray-500 truncate">Approved for Q4 — proceed to proposal</span>
@@ -475,7 +542,7 @@
                         <i class="ri-star-line mr-3 text-gray-400"></i>
                         <span class="w-56 truncate">Maria Garcia</span>
                         <div class="flex-1 flex items-center truncate">
-                          <span class="label-chip bg-indigo-600">DuoHives/DH-NEW</span>
+                          <span class="label-chip bg-indigo-600 dh-label">DuoHives/DH-NEW</span>
                           <span class="ml-2 font-semibold text-gray-900">Re: Scheduling intro call</span>
                           <span class="mx-2 text-gray-400">-</span>
                           <span class="text-gray-500 truncate">Tomorrow 11am PT works for me...</span>
@@ -488,7 +555,7 @@
                         <i class="ri-star-line mr-3 text-gray-400"></i>
                         <span class="w-56 truncate">Innovate Inc.</span>
                         <div class="flex-1 flex items-center truncate">
-                          <span class="label-chip bg-indigo-600">DuoHives/DH-101</span>
+                          <span class="label-chip bg-indigo-600 dh-label">DuoHives/DH-101</span>
                           <span class="ml-2 font-semibold text-gray-900">SOW draft</span>
                           <span class="mx-2 text-gray-400">-</span>
                           <span class="text-gray-500 truncate">Draft statement of work attached</span>
@@ -539,6 +606,75 @@
             </header>
 
             <!-- Inbox/Label View -->
+            <!-- DuoHives Login (Sidebar) -->
+            <div id="dh-login-view" class="p-4 hidden flex-1 flex items-center justify-center">
+                <div class="bg-white rounded-xl border border-gray-200 p-6 shadow-sm w-full max-w-sm">
+                    <h3 class="font-bold text-lg mb-2">Sign in</h3>
+                    <p class="text-xs text-gray-500 mb-4">Connect Google to start your DuoHives pipeline.</p>
+                    <button id="dh-btn-google-login" class="w-full flex items-center justify-center gap-2 border border-gray-300 rounded-lg py-2.5 hover:bg-gray-50">
+                        <i class="ri-google-fill text-red-500"></i>
+                        <span class="text-sm font-medium">Continue with Google</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- DuoHives Onboarding (Sidebar) -->
+            <div id="dh-onboarding-view" class="p-4 hidden flex-1 flex items-center justify-center">
+                <div class="bg-white rounded-xl border border-gray-200 p-6 shadow-sm w-full max-w-sm">
+                    <h3 class="font-bold text-lg mb-3">Setting up CRM from Emails</h3>
+                    <div class="h-2 bg-gray-200 rounded-full overflow-hidden mb-3">
+                        <div id="dh-ob-bar" class="h-full bg-indigo-500 transition-all" style="width:0%"></div>
+                    </div>
+                    <div class="text-[12px] text-gray-500 mb-4">
+                        <span id="dh-ob-label">0%</span> • about 10s
+                    </div>
+                    <div class="grid grid-cols-2 gap-3">
+                        <div class="p-3 bg-gray-50 rounded-lg border border-gray-100">
+                            <div class="text-[11px] text-gray-500 uppercase mb-2">Emails</div>
+                            <div class="space-y-2">
+                                <div>
+                                    <div class="text-xs text-gray-500">Fetched</div>
+                                    <div id="dh-ob-fetched" class="text-base font-semibold">0/200</div>
+                                </div>
+                                <div>
+                                    <div class="text-xs text-gray-500">Classified</div>
+                                    <div id="dh-ob-classified" class="text-base font-semibold">0</div>
+                                </div>
+                                <div>
+                                    <div class="text-xs text-gray-500">CRM</div>
+                                    <div id="dh-ob-sales" class="text-base font-semibold">0</div>
+                                </div>
+                                <div>
+                                    <div class="text-xs text-gray-500">Extracted & Enriched</div>
+                                    <div id="dh-ob-enriched" class="text-base font-semibold">0</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="p-3 bg-gray-50 rounded-lg border border-gray-100">
+                            <div class="text-[11px] text-gray-500 uppercase mb-2">Pipeline</div>
+                            <div class="space-y-2">
+                                <div>
+                                    <div class="text-xs text-gray-500">Opportunities</div>
+                                    <div id="dh-ob-opps" class="text-base font-semibold">0</div>
+                                </div>
+                                <div>
+                                    <div class="text-xs text-gray-500">Contacts</div>
+                                    <div id="dh-ob-contacts" class="text-base font-semibold">0</div>
+                                </div>
+                                <div>
+                                    <div class="text-xs text-gray-500">Companies</div>
+                                    <div id="dh-ob-companies" class="text-base font-semibold">0</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="dh-ob-success" class="hidden mt-3 p-2 bg-green-50 border border-green-200 rounded text-green-700 text-xs flex items-center justify-between">
+                        <span class="flex items-center"><i class="ri-check-line mr-1"></i>Done! DuoHives is ready.</span>
+                        <button id="dh-btn-go-dashboard" class="px-2 py-1 bg-indigo-600 text-white rounded hover:bg-indigo-500">Open</button>
+                    </div>
+                </div>
+            </div>
+
             <div id="dh-inbox-view" class="flex-1 flex flex-col overflow-y-auto">
                 <!-- ... existing inbox view code ... -->
                 <div class="p-4 border-b border-gray-200 space-y-5">
@@ -894,6 +1030,24 @@
             return 'Prospect';
         }
 
+        function updateDhInboxLabels() {
+            const map = {
+                'DuoHives/DH-101': 'deal-1',
+                'DuoHives/DH-102': 'deal-2',
+                'DuoHives/DH-103': 'deal-3',
+                'DuoHives/DH-NEW': 'deal-4'
+            };
+            document.querySelectorAll('.dh-label').forEach((chip) => {
+                const key = (chip.textContent || '').trim();
+                const id = map[key];
+                const d = id && dealData[id];
+                if (d) {
+                    const st = canonicalizeStatus(d.status);
+                    chip.innerHTML = `<i class="ri-blaze-fill mr-1 align-middle"></i> ${d.dealName} - ${st}`;
+                }
+            });
+        }
+
         function showDealView(dealId) {
             const data = dealData[dealId];
             if (!data) return;
@@ -1080,13 +1234,90 @@
             }
         }
         
-        // Default to inbox view instead of selecting first email
+        // Sidebar-only auth flow
+        const dhLoginView = document.getElementById('dh-login-view');
+        const dhOnboardingView = document.getElementById('dh-onboarding-view');
+        const dhDashboardView = document.getElementById('dh-inbox-view');
+        let dhObTimer = null;
+
+        function showDhLogin() {
+            if (dhLoginView) dhLoginView.classList.remove('hidden');
+            if (dhOnboardingView) dhOnboardingView.classList.add('hidden');
+            if (dhDashboardView) dhDashboardView.classList.add('hidden');
+            document.body.classList.add('hide-dh');
+        }
+        function showDhOnboarding() {
+            if (dhLoginView) dhLoginView.classList.add('hidden');
+            if (dhOnboardingView) dhOnboardingView.classList.remove('hidden');
+            if (dhDashboardView) dhDashboardView.classList.add('hidden');
+            document.body.classList.add('hide-dh');
+        }
+        function showDhDashboard() {
+            if (dhLoginView) dhLoginView.classList.add('hidden');
+            if (dhOnboardingView) dhOnboardingView.classList.add('hidden');
+            if (dhDashboardView) dhDashboardView.classList.remove('hidden');
+            document.body.classList.remove('hide-dh');
+            updateDhInboxLabels();
+        }
+        function startSidebarOnboarding() {
+            showDhOnboarding();
+            const total = 200, steps = 100, durationMs = 10000, intervalMs = Math.floor(durationMs / steps);
+            const targets = {
+                fetched: total,
+                // All fetched should eventually be classified
+                classified: total,
+                // CRM subset of classified
+                sales: Math.floor(total * 0.36),
+                // Only CRM emails should be extracted & enriched
+                enriched: Math.floor(total * 0.36),
+                opps: 22,
+                contacts: 48,
+                companies: 18
+            };
+            const els = {
+                bar: document.getElementById('dh-ob-bar'),
+                label: document.getElementById('dh-ob-label'),
+                fetched: document.getElementById('dh-ob-fetched'),
+                classified: document.getElementById('dh-ob-classified'),
+                sales: document.getElementById('dh-ob-sales'),
+                enriched: document.getElementById('dh-ob-enriched'),
+                opps: document.getElementById('dh-ob-opps'),
+                contacts: document.getElementById('dh-ob-contacts'),
+                companies: document.getElementById('dh-ob-companies'),
+                success: document.getElementById('dh-ob-success'),
+            };
+            let s=0; if (dhObTimer) clearInterval(dhObTimer);
+            dhObTimer = setInterval(()=>{
+                s++; const r=Math.min(1,s/steps), pct=Math.round(r*100);
+                if(els.bar) els.bar.style.width=pct+'%';
+                if(els.label) els.label.textContent=pct+'%';
+                if(els.fetched) els.fetched.textContent=`${Math.floor(targets.fetched*r)}/${total}`;
+                if(els.classified) els.classified.textContent=Math.floor(targets.classified*r);
+                if(els.sales) els.sales.textContent=Math.floor(targets.sales*r);
+                if(els.enriched) els.enriched.textContent=Math.floor(targets.enriched*r);
+                if(els.opps) els.opps.textContent=Math.floor(targets.opps*r);
+                if(els.contacts) els.contacts.textContent=Math.floor(targets.contacts*r);
+                if(els.companies) els.companies.textContent=Math.floor(targets.companies*r);
+                if(r>=1){ clearInterval(dhObTimer); if(els.success) els.success.classList.remove('hidden'); }
+            }, intervalMs);
+        }
+        function initSidebarFlow(){
+            const btnLogin = document.getElementById('dh-btn-google-login');
+            const btnGo = document.getElementById('dh-btn-go-dashboard');
+            if (btnLogin) btnLogin.onclick = ()=>{ startSidebarOnboarding(); };
+            if (btnGo) btnGo.onclick = ()=>{ showDhDashboard(); };
+            // Always show login on refresh per request
+            showDhLogin();
+        }
+
         document.addEventListener('DOMContentLoaded', () => {
+            // keep inbox UI intact
             showInboxView();
             initSidebarToggle();
             applySidebarVisibility();
+            document.body.classList.add('hide-dh');
+            initSidebarFlow();
         });
-
         window.addEventListener('resize', () => {
             updateToggleButtonState();
         });
