@@ -21,16 +21,33 @@
         .tooltip { position: relative; display: inline-block; }
         .tooltip .tooltiptext { visibility: hidden; width: 120px; background-color: #555; color: #fff; text-align: center; border-radius: 6px; padding: 5px 0; position: absolute; z-index: 1; bottom: 125%; left: 50%; margin-left: -60px; opacity: 0; transition: opacity 0.3s; }
         .tooltip:hover .tooltiptext { visibility: visible; opacity: 1; }
-        .timeline { display: flex; align-items: center; padding: 1rem 0;}
-        .timeline-item { display: flex; flex-direction: column; align-items: center; position: relative; flex: 1; }
+        .timeline { display: flex; align-items: center; padding: 1rem 0; flex-wrap: nowrap; justify-content: space-between; overflow-x: auto; }
+        .timeline-item { display: flex; flex-direction: column; align-items: center; position: relative; flex: 1 1 0%; min-width: 0; }
         .timeline-item:not(:first-child)::before { content: ''; position: absolute; width: 100%; top: 6px; left: -50%; border-top: 2px solid #e5e7eb; z-index: 0; }
         .timeline-dot { width: 14px; height: 14px; border-radius: 50%; background-color: #4f46e5; z-index: 1; border: 2px solid white; }
         .timeline-item.completed .timeline-dot { background-color: #22c55e; }
         .timeline-item.completed:not(:first-child)::before { border-color: #22c55e; }
-        .timeline-date { font-size: 0.75rem; color: #6b7280; margin-top: 0.5rem; text-align: center; }
+        .timeline-date { font-size: 0.7rem; color: #6b7280; margin-top: 0.5rem; text-align: center; }
         .timeline-status { font-size: 0.75rem; font-weight: 500; text-align: center; white-space: nowrap;}
+        /* Hide stage names by default; show on hover as tooltip */
+        .timeline-status { visibility: hidden; position: absolute; top: -22px; background: #fff; padding: 1px 6px; border: 1px solid #e5e7eb; border-radius: 4px; color: #374151; }
+        .timeline-item:hover .timeline-status { visibility: visible; }
+        /* Deal meta enhancements */
+        .deal-meta { display: grid; grid-template-columns: 1fr; row-gap: 6px; font-size: 12px; }
+        .deal-meta .meta-label { color: #6b7280; margin-right: 6px; }
+        .value-badge { display: inline-flex; align-items: center; gap: 6px; background: #f0f9ff; color: #0369a1; border: 1px solid #bae6fd; padding: 4px 8px; border-radius: 9999px; font-weight: 600; }
+        .company-line { display: inline-flex; align-items: center; gap: 6px; }
+        .company-avatar { width: 16px; height: 16px; border-radius: 3px; }
+        .link-btn { font-size: 11px; margin-left: 8px; color: #4f46e5; border: 1px solid #c7d2fe; background: #eef2ff; padding: 2px 6px; border-radius: 9999px; cursor: pointer; }
+        .contacts-wrap { display: inline-flex; flex-wrap: wrap; gap: 6px; }
+        .contact-chip { display: inline-flex; align-items: center; gap: 6px; border: 1px solid #e5e7eb; background: #fff; color: #111827; padding: 3px 8px; border-radius: 9999px; }
+        .contact-chip .avatar { width: 16px; height: 16px; border-radius: 9999px; display: inline-flex; align-items: center; justify-content: center; font-size: 10px; background: #a78bfa; color: #fff; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: translateY(0); } }
         .animate-fade-in { animation: fadeIn 0.35s ease-out; }
+        .updates { position: relative; margin-left: 0.5rem; }
+        .updates::before { content: ''; position: absolute; left: 6px; top: 0; bottom: 0; border-left: 2px dotted #e5e7eb; }
+        .update-item { position: relative; padding-left: 1rem; margin-bottom: 0.5rem; }
+        .update-item::before { content: ''; position: absolute; left: 0; top: 4px; width: 8px; height: 8px; border-radius: 9999px; background: #4f46e5; box-shadow: 0 0 0 2px #eef2ff; }
         /* Hide DuoHives labels in inbox until dashboard is ready */
         .hide-dh .dh-label { display: none !important; }
         .label-chip { display: inline-block; font-size: 10px; line-height: 1.1; font-weight: 600; color: #fff !important; border-radius: 6px; padding: 2px 6px; margin-left: 0.25rem; vertical-align: middle; border: 1px solid rgba(0,0,0,0.12); }
@@ -580,7 +597,7 @@
                 </div>
             </div>
 
-            <div id="thread-view" class="hidden flex-1 flex flex-col overflow-y-auto">
+            <div id="thread-view" class="hidden flex-1 flex flex-col overflow-y-auto" hidden>
                 <!-- Constrained width wrapper to match inbox list width -->
                 <div class="max-w-[816px] mx-auto w-full p-6" id="thread-view-inner">
                     <!-- Email thread view will be populated by JS when an email is selected -->
@@ -612,7 +629,7 @@
 
             <!-- Inbox/Label View -->
             <!-- DuoHives Login (Sidebar) -->
-            <div id="dh-login-view" class="p-4 hidden flex-1 flex items-center justify-center">
+            <div id="dh-login-view" class="p-4 hidden flex-1 flex items-center justify-center" hidden>
                 <div class="bg-white rounded-xl border border-gray-200 p-6 shadow-sm w-full max-w-sm">
                     <h3 class="font-bold text-lg mb-2">Sign in</h3>
                     <p class="text-xs text-gray-500 mb-4">Connect Google to start your DuoHives pipeline.</p>
@@ -624,7 +641,7 @@
             </div>
 
             <!-- DuoHives Onboarding (Sidebar) -->
-            <div id="dh-onboarding-view" class="p-4 hidden flex-1 flex items-center justify-center">
+            <div id="dh-onboarding-view" class="p-4 hidden flex-1 flex items-center justify-center" hidden>
                 <div class="bg-white rounded-xl border border-gray-200 p-6 shadow-sm w-full max-w-sm">
                     <h3 class="font-bold text-lg mb-3">Setting up CRM from Emails</h3>
                     <div class="h-2 bg-gray-200 rounded-full overflow-hidden mb-3">
@@ -811,12 +828,12 @@
             </div>
 
             <!-- Email/Thread View (Deal View) -->
-            <div id="dh-deal-view" class="hidden p-4">
+            <div id="dh-deal-view" class="hidden p-4" hidden>
                  <!-- Populated by JS -->
             </div>
 
             <!-- Pipeline View (Sidebar) -->
-            <div id="dh-pipeline-view" class="hidden p-4">
+            <div id="dh-pipeline-view" class="hidden p-4" hidden>
                 <div class="flex items-center mb-3">
                     <button id="btn-pipeline-back" class="px-2 py-1 text-xs border border-gray-200 rounded hover:bg-gray-100 mr-2"><i class="ri-arrow-left-line mr-1"></i> Back</button>
                     <h3 class="font-bold text-base">Pipeline</h3>
@@ -864,7 +881,11 @@
         const dealData = {
             'deal-1': { 
                 subject: 'Partnership Proposal', from: 'Sarah Chen', fromEmail: 'sarah@innovate.com', fromAvatar: 'S', dealName: 'Innovate Inc. Partnership', status: 'Proposal Sent', statusColor: 'green', value: '$25,000 (est.)', company: 'Innovate Inc.', companyAvatar: 'I', contacts: [{name: 'Sarah Chen', avatar: 'S'}, {name: 'John Doe', avatar: 'J'}],
-                summary: 'Innovate Inc. seeks a strategic partnership to expand market reach. Proposal submitted and awaiting feedback. High potential value.',
+                summary: 'Innovate Inc. seeks a strategic partnership to expand market reach. Proposal submitted and awaiting feedback. Initial signals look positive. We aligned on scope, value, and success criteria during discovery. Next step: consolidate Q&A from stakeholders and confirm timeline for decision by Sep 25. Risks: budget approvals and competing priorities.',
+                notes: [
+                    { ts: Date.now()-86400000*2, text: 'Shared proposal deck and pricing tiers.'},
+                    { ts: Date.now()-86400000, text: 'Follow-up sent with clarifications on scope.'}
+                ],
                 fitScore: 85,
                 conversionRate: 70,
                 timeline: [
@@ -877,7 +898,8 @@
             },
             'deal-2': { 
                 subject: 'Follow up on pricing', from: 'Alex from QuantumLeap', fromEmail: 'alex@quantumleap.co', fromAvatar: 'A', dealName: 'QuantumLeap Pricing', status: 'Negotiation', statusColor: 'blue', value: '$10,000', company: 'QuantumLeap', companyAvatar: 'Q', contacts: [{name: 'Alex Rivera', avatar: 'A'}],
-                summary: 'QuantumLeap is negotiating a 12-month software license. Currently discussing pricing tiers and volume discounts.',
+                summary: 'QuantumLeap is negotiating a 12-month software license. Discussing pricing tiers and volume discounts. Procurement requested a breakdown for annual vs. monthly options and a revised SoW. Next step: send redlines and book decision call for next week. Expectation: close by end of month if legal review is smooth.',
+                notes: [ { ts: Date.now()-86400000*3, text: 'Shared revised pricing with volume discount.' } ],
                 fitScore: 70,
                 conversionRate: 60,
                 timeline: [
@@ -890,7 +912,8 @@
             },
             'deal-3': { 
                 subject: 'Re: Project Phoenix Kick-off', from: 'Fusion Dynamics', fromEmail: 'contact@fusiondynamics.com', fromAvatar: 'F', dealName: 'Project Phoenix', status: 'Initial Contact', statusColor: 'yellow', value: 'N/A', company: 'Fusion Dynamics', companyAvatar: 'F', contacts: [{name: 'Mark Johnson', avatar: 'M'}],
-                summary: 'Initial discovery call for "Project Phoenix". Goal is to understand requirements and scope. Next step is to schedule a demo.',
+                summary: 'Initial discovery call complete. Team is aligning on scope for Project Phoenix. We agreed to compile the problem statement and shortlist of must-haves. Next step: schedule demo and validate feasibility for MVP. Internal note: involve Solutions Architect for integration questions.',
+                notes: [],
                 fitScore: 60,
                 conversionRate: 45,
                 timeline: [
@@ -902,7 +925,8 @@
             },
              'deal-4': { 
                 subject: 'Inquiry about your services', from: 'Maria Garcia', fromEmail: 'maria.g@example.com', fromAvatar: 'M', dealName: 'New Inquiry from Referral', status: 'New Lead', statusColor: 'purple', value: 'TBD', company: 'Unknown', companyAvatar: '?', contacts: [{name: 'Maria Garcia', avatar: 'M'}],
-                summary: 'A new inbound lead from a referral. They are interested in learning more about our services. Immediate follow-up needed.',
+                summary: 'A new inbound lead from a referral. They are interested in learning more about our services. Immediate follow-up needed. Next step: quick intro call to qualify needs and timeline. If fit confirmed, propose a short POC to demonstrate value.',
+                notes: [ ],
                 fitScore: 75,
                 conversionRate: 50,
                 timeline: [
@@ -934,6 +958,7 @@
         function applySidebarVisibility() {
             if (!duohivesSidebar) return;
             duohivesSidebar.classList.toggle('hidden', !sidebarVisible);
+            duohivesSidebar.hidden = !sidebarVisible;
             duohivesSidebar.setAttribute('aria-hidden', (!sidebarVisible).toString());
             updateToggleButtonState();
         }
@@ -986,6 +1011,9 @@
             // Switch main view
             inboxView.classList.add('hidden');
             threadView.classList.remove('hidden');
+            // Also toggle native hidden attribute for robustness
+            if (inboxView) inboxView.hidden = true;
+            if (threadView) threadView.hidden = false;
 
             const data = dealData[dealId];
             
@@ -1015,12 +1043,16 @@
         function showInboxView(hideOnly = false) {
             dhDealView.classList.add('hidden');
             dhInboxView.classList.remove('hidden');
+            if (dhDealView) dhDealView.hidden = true;
+            if (dhInboxView) dhInboxView.hidden = false;
 
             if (hideOnly) return;
 
             // Also reset main view to inbox
             threadView.classList.add('hidden');
             inboxView.classList.remove('hidden');
+            if (threadView) threadView.hidden = true;
+            if (inboxView) inboxView.hidden = false;
 
             // Clear any previous thread content (optional)
             if (threadViewInner) {
@@ -1074,106 +1106,94 @@
             });
         }
 
+        // Render the right-hand DuoHives deal view
         function showDealView(dealId) {
-            const data = dealData[dealId];
-            if (!data) return;
-            
-            const timelineHTML = data.timeline.map(item => `
-                <div class="timeline-item ${item.completed ? 'completed' : ''}">
-                    <div class="timeline-dot"></div>
-                    <div class="timeline-status">${item.status}</div>
-                    <div class="timeline-date">${item.date}</div>
+        const data = dealData[dealId] || {};
+        const stageOrder = ['Lead','Prospect','Qualified','Proposal','Negotiation','Closed'];
+        const currentStage = canonicalizeStatus(data.status);
+        const currentIdx = stageOrder.indexOf(currentStage);
+        const dateByStage = {};
+        (data.timeline || []).forEach(m => { dateByStage[canonicalizeStatus(m.status)] = m.date; });
+        const progressHTML = stageOrder.map((st, idx) => `
+            <div class="timeline-item ${idx <= currentIdx ? 'completed' : ''}">
+                <div class="timeline-dot"></div>
+                <div class="timeline-status">${st}</div>
+                <div class="timeline-date">${dateByStage[st] || ''}</div>
+            </div>
+        `).join('');
+
+        const dealViewHTML = `
+            <div class="flex items-center mb-4">
+                <button class="p-1 rounded hover:bg-gray-200" onclick="showInboxView()"><i class="ri-arrow-left-s-line text-lg"></i></button>
+                <h2 id="deal-title-${dealId}" class="font-bold text-base ml-2 outline-none" contenteditable="true" onkeydown="if(event.key==='Enter'){event.preventDefault();this.blur();}" onblur="saveDealName('${dealId}', this.textContent.trim())">${data.dealName}</h2>
+                <span class="ml-auto label-chip ${statusClass(currentStage)}">${currentStage}</span>
+            </div>
+
+            <div class="mb-3 deal-meta">
+                <div class="deal-meta-item">
+                    <span class="meta-label">Value:</span>
+                    <span class="value-badge"><i class="ri-money-dollar-circle-line"></i>${data.value}</span>
                 </div>
-            `).join('');
-
-            const dealViewHTML = `
-                <div class="flex items-center mb-4">
-                     <button class="p-1 rounded hover:bg-gray-200" onclick="showInboxView()"><i class="ri-arrow-left-s-line text-lg"></i></button>
-                    <h2 class="font-bold text-base ml-2">${data.dealName}</h2>
-                    <div class="ml-auto relative">
-                        <button class="p-1 rounded-full hover:bg-gray-200" onclick="toggleDropdown('deal-menu-${dealId}')"><i class="ri-more-2-fill"></i></button>
-                        <div id="deal-menu-${dealId}" class="hidden absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg z-20">
-                            <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Rename Deal</a>
-                             <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Merge with...</a>
-                            <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Split into New Deal</a>
-                            <a href="#" class="block px-4 py-2 text-sm text-red-600 hover:bg-gray-100">Remove from CRM</a>
-                        </div>
-                    </div>
-                 </div>
-
-                 <div class="bg-gray-50 p-3 rounded-lg mb-4">
-                     <h3 class="text-xs font-semibold text-gray-500 mb-1">AI SUMMARY</h3>
-                     <p class="text-xs text-gray-700">${data.summary}</p>
-                 </div>
-                 
-                 <div class="grid grid-cols-2 gap-4 mb-4">
-                     <div class="bg-gray-50 p-3 rounded-lg">
-                        <label class="text-xs font-semibold text-gray-500 flex items-center">ENRICHED FIT <i class="ri-information-line ml-1"></i></label>
-                        <p class="text-xl font-bold text-green-600">${data.fitScore}%</p>
-                     </div>
-                     <div class="bg-gray-50 p-3 rounded-lg">
-                        <label class="text-xs font-semibold text-gray-500 flex items-center">CONVERSION % <i class="ri-information-line ml-1"></i></label>
-                        <p class="text-xl font-bold text-indigo-600">${data.conversionRate}%</p>
-                     </div>
-                 </div>
-
-                <div class="border-t pt-4 mb-4">
-                     <h3 class="text-xs font-semibold text-gray-500 mb-2">PROGRESS</h3>
-                     <div class="timeline">${timelineHTML}</div>
+                <div class="deal-meta-item">
+                    <span class="meta-label">Company:</span>
+                    <span class="company-line">
+                        <img src="https://placehold.co/16x16/A78BFA/FFFFFF?text=${data.companyAvatar}" class="company-avatar">
+                        <span class="text-sm font-semibold">${data.company}</span>
+                        <button class="link-btn" onclick="alert('Open ${data.company} details')">View</button>
+                    </span>
                 </div>
-                
-                 <div class="space-y-4">
-                    <div>
-                        <label class="text-xs font-semibold text-gray-500">Status</label>
-                        <p class="text-sm font-medium text-${data.statusColor}-600 bg-${data.statusColor}-100 px-2 py-1 rounded inline-block">${canonicalizeStatus(data.status)}</p>
-                    </div>
-                    <div>
-                        <label class="text-xs font-semibold text-gray-500">Value</label>
-                        <p class="text-sm font-medium">${data.value}</p>
-                    </div>
-                    <div>
-                        <label class="text-xs font-semibold text-gray-500">Company</label>
-                        <div class="flex items-center mt-1">
-                            <img src="https://placehold.co/24x24/A78BFA/FFFFFF?text=${data.companyAvatar}" class="rounded-sm mr-2">
-                            <span class="font-medium">${data.company}</span>
-                        </div>
-                    </div>
-                    <div>
-                        <label class="text-xs font-semibold text-gray-500">Contacts</label>
+                <div class="deal-meta-item">
+                    <span class="meta-label">Contacts:</span>
+                    <span class="contacts-wrap">
                         ${data.contacts.map(c => `
-                        <div class="flex items-center mt-1">
-                            <img src="https://placehold.co/24x24/7C3AED/FFFFFF?text=${c.avatar}" class="rounded-full mr-2">
-                            <span class="font-medium">${c.name}</span>
-                        </div>`).join('')}
-                    </div>
-                    <div class="border-t border-dashed pt-4 mt-4">
-                        <h3 class="text-xs font-semibold text-gray-500 mb-2">Quick Overrides</h3>
-                        <div class="flex flex-wrap gap-2 text-xs">
-                            <button class="px-3 py-1 border border-gray-200 rounded-full hover:bg-gray-100" onclick="captureDealOverride('rename', '${dealId}')">Rename Deal</button>
-                            <button class="px-3 py-1 border border-gray-200 rounded-full hover:bg-gray-100" onclick="captureDealOverride('merge', '${dealId}')">Merge with…</button>
-                            <button class="px-3 py-1 border border-gray-200 rounded-full hover:bg-gray-100" onclick="captureDealOverride('split', '${dealId}')">Split into New Deal</button>
-                            <button class="px-3 py-1 border border-gray-200 rounded-full hover:bg-gray-100 text-rose-600" onclick="captureDealOverride('remove', '${dealId}')">Remove from CRM</button>
-                        </div>
-                        <p class="text-[11px] text-gray-500 mt-2">User overrides always win—future AI passes read these states from Firestore.</p>
-                    </div>
-                    <div class="border border-indigo-100 rounded-lg p-3">
-                        <label class="text-xs font-semibold text-gray-500">Deal Notes</label>
-                        <textarea id="deal-note-${dealId}" class="w-full mt-2 border border-gray-200 rounded-md p-2 text-xs" rows="3" placeholder="Add context or next steps…"></textarea>
-                        <div class="mt-2 flex items-center">
-                            <button class="px-3 py-1 bg-indigo-600 text-white text-xs rounded-md hover:bg-indigo-500" onclick="saveDealNote('${dealId}')">Save Note</button>
-                            <span class="ml-3 text-[11px] text-gray-500">Synced to Firestore + feedback log instantly.</span>
-                        </div>
-                    </div>
-                    <div class="text-[11px] text-gray-500 flex items-start">
-                        <i class="ri-shield-keyhole-line text-indigo-500 mr-2 mt-0.5"></i>
-                        <span>Privacy guards enabled: minimal Gmail scopes, enrichment expires after 30 days, purge-all available anytime.</span>
-                    </div>
+                            <span class=\"contact-chip\">
+                                <span class=\"avatar\">${(c.avatar||c.name||'?').toString().slice(0,1)}</span>
+                                <span>${c.name}</span>
+                            </span>
+                        `).join('')}
+                    </span>
                 </div>
-            `;
+            </div>
+
+            <div class="border-t pt-3 mb-4">
+                <h3 class="text-xs font-semibold text-gray-500 mb-2">Progress</h3>
+                <div class="timeline">${progressHTML}</div>
+            </div>
+
+            <div class="bg-white border border-gray-200 rounded-lg p-3 mb-4">
+                <h3 class="text-xs font-semibold text-gray-500 mb-2">Per Interaction Summary</h3>
+                <div class="space-y-2">
+                    ${(data.timeline || []).map(m => `
+                        <div class=\"flex items-start gap-2\">
+                            <span class=\"text-[11px] text-gray-500 mt-0.5\">${m.date}</span>
+                            <div class=\"flex-1 text-xs text-gray-700 outline-none\" contenteditable=\"true\" onkeydown=\"if(event.key==='Enter'){event.preventDefault();this.blur();}\" onblur=\"saveDealNoteStage('${dealId}','${canonicalizeStatus(m.status)}', this.textContent.trim())\">${(data._notes && data._notes[canonicalizeStatus(m.status)]) || canonicalizeStatus(m.status)+' update'}</div>
+                        </div>
+                    `).join('')}
+                    ${!(data.timeline||[]).length ? '<div class=\'text-[11px] text-gray-400\'>No interactions yet</div>' : ''}
+                </div>
+            </div>
+
+            <div class="bg-white border border-gray-200 rounded-lg p-3 mb-4">
+                <div class="flex items-center mb-2">
+                    <h3 class="text-xs font-semibold text-gray-500">Notes</h3>
+                    <button class="ml-auto link-btn" onclick="addDealNote('${dealId}')"><i class="ri-add-line"></i> Add</button>
+                </div>
+                <div id="notes-list-${dealId}" class="space-y-2 text-xs text-gray-700"></div>
+            </div>
+
+            <div class="bg-white border border-gray-200 rounded-lg p-3 mb-4">
+                <h3 class="text-xs font-semibold text-gray-500 mb-2">Summary</h3>
+                <div class="text-xs text-gray-700">${data.summary}</div>
+            </div>
+        `;
             dhDealView.innerHTML = dealViewHTML;
 
             dhInboxView.classList.add('hidden');
             dhDealView.classList.remove('hidden');
+            if (dhInboxView) dhInboxView.hidden = true;
+            if (dhDealView) dhDealView.hidden = false;
+
+            renderDealNotes(dealId);
         }
 
         function logFeedbackEntry(iconClass, title, detail) {
@@ -1197,6 +1217,32 @@
             while (feedbackLog.children.length > 5) {
                 feedbackLog.removeChild(feedbackLog.lastElementChild);
             }
+        }
+
+        function renderDealNotes(dealId) {
+            const container = document.getElementById(`notes-list-${dealId}`);
+            if (!container) return;
+            const notes = (dealData[dealId] && dealData[dealId].notes) || [];
+            if (!notes.length) {
+                container.innerHTML = '<div class="text-[11px] text-gray-400">No notes yet</div>';
+                return;
+            }
+            container.innerHTML = notes.map(n => `
+                <div class="flex items-start gap-2">
+                    <span class="text-[10px] text-gray-400 mt-0.5">${new Date(n.ts).toLocaleDateString()} ${new Date(n.ts).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}</span>
+                    <div class="flex-1">${n.text}</div>
+                </div>
+            `).join('');
+        }
+
+        function addDealNote(dealId) {
+            const text = prompt('Add a note');
+            if (!text) return;
+            if (!dealData[dealId]) return;
+            if (!dealData[dealId].notes) dealData[dealId].notes = [];
+            dealData[dealId].notes.unshift({ ts: Date.now(), text });
+            renderDealNotes(dealId);
+            logFeedbackEntry('ri-edit-2-line text-indigo-500', 'Note added', `Saved to ${dealData[dealId].dealName}`);
         }
 
         function quickThreadAction(event, dealId, action) {
@@ -1249,6 +1295,26 @@
             document.getElementById(menuId).classList.toggle('hidden');
         }
 
+        function saveDealName(dealId, name) {
+            if (!name) return;
+            if (dealData[dealId]) {
+                dealData[dealId].dealName = name;
+                updateDhInboxLabels();
+            }
+        }
+
+        function saveDealSummary(dealId, text) {
+            if (dealData[dealId]) {
+                dealData[dealId].summary = text || dealData[dealId].summary;
+            }
+        }
+
+        function saveDealNoteStage(dealId, stage, text) {
+            if (!dealData[dealId]) return;
+            if (!dealData[dealId]._notes) dealData[dealId]._notes = {};
+            dealData[dealId]._notes[stage] = text || '';
+        }
+
         window.onclick = function(event) {
             if (!event.target.matches('.ri-more-2-fill')) {
                 var dropdowns = document.querySelectorAll("[id^='deal-menu']");
@@ -1264,24 +1330,28 @@
         const dhLoginView = document.getElementById('dh-login-view');
         const dhOnboardingView = document.getElementById('dh-onboarding-view');
         const dhDashboardView = document.getElementById('dh-inbox-view');
+        const dhPipelineView = document.getElementById('dh-pipeline-view');
         let dhObTimer = null;
 
         function showDhLogin() {
-            if (dhLoginView) dhLoginView.classList.remove('hidden');
-            if (dhOnboardingView) dhOnboardingView.classList.add('hidden');
-            if (dhDashboardView) dhDashboardView.classList.add('hidden');
+            if (dhLoginView) { dhLoginView.classList.remove('hidden'); dhLoginView.hidden = false; }
+            if (dhOnboardingView) { dhOnboardingView.classList.add('hidden'); dhOnboardingView.hidden = true; }
+            if (dhDashboardView) { dhDashboardView.classList.add('hidden'); dhDashboardView.hidden = true; }
+            if (dhPipelineView) { dhPipelineView.classList.add('hidden'); dhPipelineView.hidden = true; }
             document.body.classList.add('hide-dh');
         }
         function showDhOnboarding() {
-            if (dhLoginView) dhLoginView.classList.add('hidden');
-            if (dhOnboardingView) dhOnboardingView.classList.remove('hidden');
-            if (dhDashboardView) dhDashboardView.classList.add('hidden');
+            if (dhLoginView) { dhLoginView.classList.add('hidden'); dhLoginView.hidden = true; }
+            if (dhOnboardingView) { dhOnboardingView.classList.remove('hidden'); dhOnboardingView.hidden = false; }
+            if (dhDashboardView) { dhDashboardView.classList.add('hidden'); dhDashboardView.hidden = true; }
+            if (dhPipelineView) { dhPipelineView.classList.add('hidden'); dhPipelineView.hidden = true; }
             document.body.classList.add('hide-dh');
         }
         function showDhDashboard() {
-            if (dhLoginView) dhLoginView.classList.add('hidden');
-            if (dhOnboardingView) dhOnboardingView.classList.add('hidden');
-            if (dhDashboardView) dhDashboardView.classList.remove('hidden');
+            if (dhLoginView) { dhLoginView.classList.add('hidden'); dhLoginView.hidden = true; }
+            if (dhOnboardingView) { dhOnboardingView.classList.add('hidden'); dhOnboardingView.hidden = true; }
+            if (dhDashboardView) { dhDashboardView.classList.remove('hidden'); dhDashboardView.hidden = false; }
+            if (dhPipelineView) { dhPipelineView.classList.add('hidden'); dhPipelineView.hidden = true; }
             document.body.classList.remove('hide-dh');
             updateDhInboxLabels();
         }
@@ -1397,10 +1467,14 @@
         function showDhPipeline() {
             const pipelineView = document.getElementById('dh-pipeline-view');
             if (!pipelineView) return;
-            if (document.getElementById('dh-login-view')) document.getElementById('dh-login-view').classList.add('hidden');
-            if (document.getElementById('dh-onboarding-view')) document.getElementById('dh-onboarding-view').classList.add('hidden');
-            if (document.getElementById('dh-inbox-view')) document.getElementById('dh-inbox-view').classList.add('hidden');
+            const lv = document.getElementById('dh-login-view');
+            const ov = document.getElementById('dh-onboarding-view');
+            const dv = document.getElementById('dh-inbox-view');
+            if (lv) { lv.classList.add('hidden'); lv.hidden = true; }
+            if (ov) { ov.classList.add('hidden'); ov.hidden = true; }
+            if (dv) { dv.classList.add('hidden'); dv.hidden = true; }
             pipelineView.classList.remove('hidden');
+            pipelineView.hidden = false;
             renderPipeline();
         }
 
