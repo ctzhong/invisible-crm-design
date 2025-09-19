@@ -21,17 +21,18 @@
         .tooltip { position: relative; display: inline-block; }
         .tooltip .tooltiptext { visibility: hidden; width: 120px; background-color: #555; color: #fff; text-align: center; border-radius: 6px; padding: 5px 0; position: absolute; z-index: 1; bottom: 125%; left: 50%; margin-left: -60px; opacity: 0; transition: opacity 0.3s; }
         .tooltip:hover .tooltiptext { visibility: visible; opacity: 1; }
-        .timeline { display: flex; align-items: center; padding: 1rem 0; flex-wrap: nowrap; justify-content: space-between; overflow-x: auto; }
-        .timeline-item { display: flex; flex-direction: column; align-items: center; position: relative; flex: 1 1 0%; min-width: 0; }
-        .timeline-item:not(:first-child)::before { content: ''; position: absolute; width: 100%; top: 6px; left: -50%; border-top: 2px solid #e5e7eb; z-index: 0; }
+        /* Keep progress dots on a single line (6 fixed stages) */
+        .timeline { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); align-items: start; justify-items: center; padding: 1rem 0; position: relative; gap: 0; }
+        .timeline-item { display: grid; grid-auto-rows: auto; justify-items: center; align-items: start; position: relative; min-width: 0; }
+        .timeline-item:not(:first-child)::before { content: ''; position: absolute; width: 100%; top: 7px; left: -50%; border-top: 2px solid #e5e7eb; z-index: 0; }
         .timeline-dot { width: 14px; height: 14px; border-radius: 50%; background-color: #4f46e5; z-index: 1; border: 2px solid white; }
         .timeline-item.completed .timeline-dot { background-color: #22c55e; }
         .timeline-item.completed:not(:first-child)::before { border-color: #22c55e; }
-        .timeline-date { font-size: 0.7rem; color: #6b7280; margin-top: 0.5rem; text-align: center; }
-        .timeline-status { font-size: 0.75rem; font-weight: 500; text-align: center; white-space: nowrap;}
-        /* Hide stage names by default; show on hover as tooltip */
-        .timeline-status { visibility: hidden; position: absolute; top: -22px; background: #fff; padding: 1px 6px; border: 1px solid #e5e7eb; border-radius: 4px; color: #374151; }
-        .timeline-item:hover .timeline-status { visibility: visible; }
+        /* Always show the stage name below the dot */
+        .timeline-status { margin-top: 8px; font-size: 0.68rem; font-weight: 500; text-align: center; white-space: nowrap; color: #374151; }
+        /* Show the date as a tooltip on hover above the dot */
+        .timeline-date { position: absolute; top: -28px; left: 50%; transform: translateX(-50%) translateY(-2px); background: #fff; padding: 1px 6px; border: 1px solid #e5e7eb; border-radius: 4px; color: #374151; font-size: 0.7rem; line-height: 1.2; white-space: nowrap; opacity: 0; transition: opacity 0.2s ease, transform 0.2s ease; pointer-events: none; }
+        .timeline-item:hover .timeline-date { opacity: 1; transform: translateX(-50%) translateY(0); }
         /* Deal meta enhancements */
         .deal-meta { display: grid; grid-template-columns: 1fr; row-gap: 6px; font-size: 12px; }
         .deal-meta .meta-label { color: #6b7280; margin-right: 6px; }
@@ -42,6 +43,14 @@
         .contacts-wrap { display: inline-flex; flex-wrap: wrap; gap: 6px; }
         .contact-chip { display: inline-flex; align-items: center; gap: 6px; border: 1px solid #e5e7eb; background: #fff; color: #111827; padding: 3px 8px; border-radius: 9999px; }
         .contact-chip .avatar { width: 16px; height: 16px; border-radius: 9999px; display: inline-flex; align-items: center; justify-content: center; font-size: 10px; background: #a78bfa; color: #fff; }
+        .company-chip { display: inline-flex; align-items: center; gap: 6px; border: 1px solid #e5e7eb; background: #fff; color: #111827; padding: 3px 8px; border-radius: 9999px; cursor: pointer; }
+        .company-chip .company-square { width: 16px; height: 16px; border-radius: 3px; display: inline-flex; align-items: center; justify-content: center; font-size: 10px; background: #a78bfa; color: #fff; }
+        .note-card { border: 1px solid #e5e7eb; background: #fff; border-radius: 8px; padding: 8px; }
+        .summary-card { border: 1px solid #e5e7eb; background: #fff; border-radius: 8px; padding: 8px; display: flex; gap: 8px; align-items: flex-start; }
+        .summary-date { font-size: 10px; color: #6b7280; margin-top: 2px; }
+        .dir-badge { font-size: 10px; line-height: 1; font-weight: 700; border-radius: 9999px; padding: 2px 6px; border: 1px solid transparent; }
+        .dir-in { background: #ecfdf5; color: #065f46; border-color: #a7f3d0; }
+        .dir-out { background: #eef2ff; color: #3730a3; border-color: #c7d2fe; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: translateY(0); } }
         .animate-fade-in { animation: fadeIn 0.35s ease-out; }
         .updates { position: relative; margin-left: 0.5rem; }
@@ -697,7 +706,7 @@
                 </div>
             </div>
 
-            <div id="dh-inbox-view" class="flex-1 flex flex-col overflow-y-auto">
+            <div id="dh-inbox-view" class="flex-1 flex flex-col overflow-y-auto text-sm">
                 <!-- ... existing inbox view code ... -->
                 <div class="p-4 border-b border-gray-200 space-y-5">
                     <section>
@@ -833,10 +842,10 @@
             </div>
 
             <!-- Pipeline View (Sidebar) -->
-            <div id="dh-pipeline-view" class="hidden p-4" hidden>
+            <div id="dh-pipeline-view" class="hidden p-4 text-sm" hidden>
                 <div class="flex items-center mb-3">
-                    <button id="btn-pipeline-back" class="px-2 py-1 text-xs border border-gray-200 rounded hover:bg-gray-100 mr-2"><i class="ri-arrow-left-line mr-1"></i> Back</button>
-                    <h3 class="font-bold text-base">Pipeline</h3>
+                    <button id="btn-pipeline-back" type="button" class="p-1 rounded hover:bg-gray-200"><i class="ri-arrow-left-s-line text-lg"></i></button>
+                    <h3 class="font-bold text-base ml-2">Pipeline</h3>
                 </div>
                 <div id="dh-pipeline-container" class="space-y-3"></div>
             </div>
@@ -880,11 +889,16 @@
         
         const dealData = {
             'deal-1': { 
-                subject: 'Partnership Proposal', from: 'Sarah Chen', fromEmail: 'sarah@innovate.com', fromAvatar: 'S', dealName: 'Innovate Inc. Partnership', status: 'Proposal Sent', statusColor: 'green', value: '$25,000 (est.)', company: 'Innovate Inc.', companyAvatar: 'I', contacts: [{name: 'Sarah Chen', avatar: 'S'}, {name: 'John Doe', avatar: 'J'}],
+                subject: 'Partnership Proposal', from: 'Sarah Chen', fromEmail: 'sarah@innovate.com', fromAvatar: 'S', dealName: 'Innovate Inc. Partnership', status: 'Proposal Sent', statusColor: 'green', value: '$25,000 (est.)', company: 'Innovate Inc.', companyAvatar: 'I', labelKey: 'DuoHives/DH-101', contacts: [{name: 'Sarah Chen', avatar: 'S'}, {name: 'John Doe', avatar: 'J'}],
                 summary: 'Innovate Inc. seeks a strategic partnership to expand market reach. Proposal submitted and awaiting feedback. Initial signals look positive. We aligned on scope, value, and success criteria during discovery. Next step: consolidate Q&A from stakeholders and confirm timeline for decision by Sep 25. Risks: budget approvals and competing priorities.',
                 notes: [
                     { ts: Date.now()-86400000*2, text: 'Shared proposal deck and pricing tiers.'},
                     { ts: Date.now()-86400000, text: 'Follow-up sent with clarifications on scope.'}
+                ],
+                emails: [
+                    { dir: 'in', date: 'Sep 12', summary: 'Sarah kicked off the partnership conversation and asked about integration scope.' },
+                    { dir: 'out', date: 'Sep 15', summary: 'Sent the proposal deck with pricing tiers and success criteria.' },
+                    { dir: 'in', date: 'Sep 18', summary: 'Received follow-up questions on pricing breakdown and timeline.' }
                 ],
                 fitScore: 85,
                 conversionRate: 70,
@@ -894,12 +908,23 @@
                     { status: 'Follow-up', date: 'Sep 18', completed: false },
                     { status: 'Decision', date: 'Sep 25', completed: false },
                 ],
-                emailContent: `<p>Hi team,</p><p>Following up on our call, I've attached the detailed proposal for our potential partnership...</p>`
+                emailContent: `
+                    <p>Hi team,</p>
+                    <p>Great speaking with you earlier this week. As promised, I’ve attached the detailed proposal outlining objectives, scope, and a phased rollout plan. We proposed a lightweight pilot (4–6 weeks) to validate the success criteria we discussed, with clear milestones and a success dashboard you can share internally.</p>
+                    <p>Pricing reflects the pilot plus an annual subscription. We also included an optional enablement package for your Solutions team. If helpful, we can split the invoice into pilot + annual to align with your budget cycle.</p>
+                    <p>Next steps: please share any redlines or questions from your stakeholders. We can hold time on Thursday to walk through the numbers and confirm the proposed timeline (decision by Sep 25). If approvals are needed from Finance or Security, we can loop in our team to accelerate.</p>
+                    <p>Best regards,<br/>Sarah</p>
+                `
             },
             'deal-2': { 
-                subject: 'Follow up on pricing', from: 'Alex from QuantumLeap', fromEmail: 'alex@quantumleap.co', fromAvatar: 'A', dealName: 'QuantumLeap Pricing', status: 'Negotiation', statusColor: 'blue', value: '$10,000', company: 'QuantumLeap', companyAvatar: 'Q', contacts: [{name: 'Alex Rivera', avatar: 'A'}],
+                subject: 'Follow up on pricing', from: 'Alex from QuantumLeap', fromEmail: 'alex@quantumleap.co', fromAvatar: 'A', dealName: 'QuantumLeap Pricing', status: 'Negotiation', statusColor: 'blue', value: '$10,000', company: 'QuantumLeap', companyAvatar: 'Q', labelKey: 'DuoHives/DH-102', contacts: [{name: 'Alex Rivera', avatar: 'A'}],
                 summary: 'QuantumLeap is negotiating a 12-month software license. Discussing pricing tiers and volume discounts. Procurement requested a breakdown for annual vs. monthly options and a revised SoW. Next step: send redlines and book decision call for next week. Expectation: close by end of month if legal review is smooth.',
                 notes: [ { ts: Date.now()-86400000*3, text: 'Shared revised pricing with volume discount.' } ],
+                emails: [
+                    { dir: 'in', date: 'Sep 10', summary: 'Alex requested detailed pricing and asked about volume discounts.' },
+                    { dir: 'out', date: 'Sep 14', summary: 'Shared demo recording and revised quote with discount tiers.' },
+                    { dir: 'in', date: 'Sep 17', summary: 'Procurement asked for annual vs monthly cost breakdown.' }
+                ],
                 fitScore: 70,
                 conversionRate: 60,
                 timeline: [
@@ -908,12 +933,21 @@
                     { status: 'Negotiation', date: 'Sep 17', completed: true },
                     { status: 'Closing', date: 'Sep 22', completed: false },
                 ],
-                emailContent: `<p>Hi,</p><p>Just wanted to check in on the quote we sent over last week. Are there any questions I can answer?</p>`
+                emailContent: `
+                    <p>Hi Alex,</p>
+                    <p>Thanks for reviewing the quote. I prepared a side-by-side breakdown of monthly vs. annual pricing, including the volume tiers you asked about. The annual plan locks in an additional 8% discount and includes priority support. I also attached a redlined SoW reflecting your usage assumptions and the integration milestones we discussed on the demo.</p>
+                    <p>Would it be helpful to bring Procurement into a quick working session? We can finalize the numbers and align on the rollout plan for your pilot cohort next month.</p>
+                    <p>Best,<br/>— Team DuoHives</p>
+                `
             },
             'deal-3': { 
-                subject: 'Re: Project Phoenix Kick-off', from: 'Fusion Dynamics', fromEmail: 'contact@fusiondynamics.com', fromAvatar: 'F', dealName: 'Project Phoenix', status: 'Initial Contact', statusColor: 'yellow', value: 'N/A', company: 'Fusion Dynamics', companyAvatar: 'F', contacts: [{name: 'Mark Johnson', avatar: 'M'}],
+                subject: 'Re: Project Phoenix Kick-off', from: 'Fusion Dynamics', fromEmail: 'contact@fusiondynamics.com', fromAvatar: 'F', dealName: 'Project Phoenix', status: 'Initial Contact', statusColor: 'yellow', value: 'N/A', company: 'Fusion Dynamics', companyAvatar: 'F', labelKey: 'DuoHives/DH-103', contacts: [{name: 'Mark Johnson', avatar: 'M'}],
                 summary: 'Initial discovery call complete. Team is aligning on scope for Project Phoenix. We agreed to compile the problem statement and shortlist of must-haves. Next step: schedule demo and validate feasibility for MVP. Internal note: involve Solutions Architect for integration questions.',
                 notes: [],
+                emails: [
+                    { dir: 'in', date: 'Sep 17', summary: 'Fusion Dynamics asked about discovery and kick-off logistics.' },
+                    { dir: 'out', date: 'Sep 20', summary: 'Proposed demo to validate scope and MVP feasibility.' }
+                ],
                 fitScore: 60,
                 conversionRate: 45,
                 timeline: [
@@ -921,19 +955,33 @@
                      { status: 'Discovery', date: 'Sep 20', completed: false },
                      { status: 'Demo', date: 'Sep 28', completed: false },
                 ],
-                emailContent: `<p>Let's schedule a time to discuss the initial phase of Project Phoenix. How does your calendar look next week?</p>`
+                emailContent: `
+                    <p>Hi Mark,</p>
+                    <p>Following our discovery call, I captured the problem statement and success criteria for Project Phoenix. The goal is to streamline onboarding workflows and surface key health signals to your Ops team. I’ve outlined a demo agenda to validate the MVP approach and to ensure we’re prioritizing the right metrics and integrations.</p>
+                    <p>Could you share availability for a 45‑minute session next week? I’ll bring our Solutions Architect so we can cover the data flows and answer any technical questions.</p>
+                    <p>Thanks,<br/>Fusion Dynamics Team</p>
+                `
             },
              'deal-4': { 
-                subject: 'Inquiry about your services', from: 'Maria Garcia', fromEmail: 'maria.g@example.com', fromAvatar: 'M', dealName: 'New Inquiry from Referral', status: 'New Lead', statusColor: 'purple', value: 'TBD', company: 'Unknown', companyAvatar: '?', contacts: [{name: 'Maria Garcia', avatar: 'M'}],
+                subject: 'Inquiry about your services', from: 'Maria Garcia', fromEmail: 'maria.g@example.com', fromAvatar: 'M', dealName: 'New Inquiry from Referral', status: 'New Lead', statusColor: 'purple', value: 'TBD', company: 'Unknown', companyAvatar: '?', labelKey: 'DuoHives/DH-NEW', contacts: [{name: 'Maria Garcia', avatar: 'M'}],
                 summary: 'A new inbound lead from a referral. They are interested in learning more about our services. Immediate follow-up needed. Next step: quick intro call to qualify needs and timeline. If fit confirmed, propose a short POC to demonstrate value.',
                 notes: [ ],
+                emails: [
+                    { dir: 'in', date: 'Sep 16', summary: 'Maria reached out to learn more about services and availability.' },
+                    { dir: 'out', date: 'Sep 17', summary: 'Replied with intro, service overview, and times to connect.' }
+                ],
                 fitScore: 75,
                 conversionRate: 50,
                 timeline: [
                     { status: 'New Lead', date: 'Sep 16', completed: true },
                     { status: 'Response', date: 'Sep 18', completed: false },
                 ],
-                emailContent: `<p>Hi there,</p><p>I found you through a referral and was hoping to learn more about your services. When would be a good time to connect?</p>`
+                emailContent: `
+                    <p>Hello,</p>
+                    <p>I was referred by a colleague who spoke highly of your team. We’re exploring tools to help our sales org triage inbound and automatically maintain CRM hygiene. Specifically, we’re looking for better lead routing, dedupe, and lightweight pipeline insights from email activity.</p>
+                    <p>Do you have a short overview deck you can share? I’d also love a quick intro call to understand pricing, implementation time, and what a minimal pilot looks like.</p>
+                    <p>Thanks!<br/>Maria</p>
+                `
             }
         };
 
@@ -1019,7 +1067,10 @@
             
             if (data) {
                 threadViewInner.innerHTML = `
-                <h2 class="text-2xl font-normal mb-4 px-0" id="thread-subject">${data.subject}</h2>
+                <h2 class="text-2xl font-normal mb-4 px-0 flex items-center gap-2" id="thread-subject">
+                    ${data.subject}
+                    <span class=\"label-chip bg-indigo-600\"><i class=\"ri-blaze-fill mr-1 align-middle\"></i> ${data.dealName} - ${canonicalizeStatus(data.status)}</span>
+                </h2>
                 <div class="flex items-center mb-6">
                     <img src="https://placehold.co/40x40/7C3AED/FFFFFF?text=${data.fromAvatar}" class="rounded-full mr-3">
                     <div>
@@ -1122,6 +1173,24 @@
             </div>
         `).join('');
 
+        const emails = (data.emails || []);
+        const summaryHTML = (emails.length
+            ? emails.map(m => `
+                <div class=\"summary-card\">
+                    <span class=\"dir-badge ${m.dir === 'out' ? 'dir-out' : 'dir-in'}\">${(m.dir||'in').toUpperCase()}</span>
+                    <div class=\"flex-1 text-xs text-gray-700\">${m.summary || ''}</div>
+                    <div class=\"summary-date\">${m.date || ''}</div>
+                </div>
+            `).join('')
+            : ((data.timeline || []).map(m => `
+                <div class=\"summary-card\">
+                    <span class=\"dir-badge dir-in\">IN</span>
+                    <div class=\"flex-1 text-xs text-gray-700\">${(data._notes && data._notes[canonicalizeStatus(m.status)]) || canonicalizeStatus(m.status)+' update'}</div>
+                    <div class=\"summary-date\">${m.date || ''}</div>
+                </div>
+              `).join(''))
+           ) || `<div class='text-[11px] text-gray-400'>No summary available</div>`;
+
         const dealViewHTML = `
             <div class="flex items-center mb-4">
                 <button class="p-1 rounded hover:bg-gray-200" onclick="showInboxView()"><i class="ri-arrow-left-s-line text-lg"></i></button>
@@ -1136,11 +1205,10 @@
                 </div>
                 <div class="deal-meta-item">
                     <span class="meta-label">Company:</span>
-                    <span class="company-line">
-                        <img src="https://placehold.co/16x16/A78BFA/FFFFFF?text=${data.companyAvatar}" class="company-avatar">
+                    <button class="company-chip" onclick="openCompany('${data.company}')">
+                        <span class="company-square">${data.companyAvatar || (data.company||'?').toString().slice(0,1)}</span>
                         <span class="text-sm font-semibold">${data.company}</span>
-                        <button class="link-btn" onclick="alert('Open ${data.company} details')">View</button>
-                    </span>
+                    </button>
                 </div>
                 <div class="deal-meta-item">
                     <span class="meta-label">Contacts:</span>
@@ -1161,16 +1229,8 @@
             </div>
 
             <div class="bg-white border border-gray-200 rounded-lg p-3 mb-4">
-                <h3 class="text-xs font-semibold text-gray-500 mb-2">Per Interaction Summary</h3>
-                <div class="space-y-2">
-                    ${(data.timeline || []).map(m => `
-                        <div class=\"flex items-start gap-2\">
-                            <span class=\"text-[11px] text-gray-500 mt-0.5\">${m.date}</span>
-                            <div class=\"flex-1 text-xs text-gray-700 outline-none\" contenteditable=\"true\" onkeydown=\"if(event.key==='Enter'){event.preventDefault();this.blur();}\" onblur=\"saveDealNoteStage('${dealId}','${canonicalizeStatus(m.status)}', this.textContent.trim())\">${(data._notes && data._notes[canonicalizeStatus(m.status)]) || canonicalizeStatus(m.status)+' update'}</div>
-                        </div>
-                    `).join('')}
-                    ${!(data.timeline||[]).length ? '<div class=\'text-[11px] text-gray-400\'>No interactions yet</div>' : ''}
-                </div>
+                <h3 class="text-xs font-semibold text-gray-500 mb-2">Summary</h3>
+                <div class="space-y-2">${summaryHTML}</div>
             </div>
 
             <div class="bg-white border border-gray-200 rounded-lg p-3 mb-4">
@@ -1179,11 +1239,6 @@
                     <button class="ml-auto link-btn" onclick="addDealNote('${dealId}')"><i class="ri-add-line"></i> Add</button>
                 </div>
                 <div id="notes-list-${dealId}" class="space-y-2 text-xs text-gray-700"></div>
-            </div>
-
-            <div class="bg-white border border-gray-200 rounded-lg p-3 mb-4">
-                <h3 class="text-xs font-semibold text-gray-500 mb-2">Summary</h3>
-                <div class="text-xs text-gray-700">${data.summary}</div>
             </div>
         `;
             dhDealView.innerHTML = dealViewHTML;
@@ -1227,22 +1282,37 @@
                 container.innerHTML = '<div class="text-[11px] text-gray-400">No notes yet</div>';
                 return;
             }
-            container.innerHTML = notes.map(n => `
-                <div class="flex items-start gap-2">
-                    <span class="text-[10px] text-gray-400 mt-0.5">${new Date(n.ts).toLocaleDateString()} ${new Date(n.ts).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}</span>
-                    <div class="flex-1">${n.text}</div>
-                </div>
-            `).join('');
+            container.innerHTML = notes.map((n, i) => {
+                const text = typeof n === 'string' ? n : (n && n.text) || '';
+                return `
+                    <div class="note-card text-xs text-gray-700" contenteditable="true"
+                         onkeydown="if(event.key==='Enter'){event.preventDefault();this.blur();}"
+                         onblur="saveDealNote('${dealId}', ${i}, this.textContent.trim())">${text || 'New note'}</div>
+                `;
+            }).join('');
         }
 
         function addDealNote(dealId) {
-            const text = prompt('Add a note');
-            if (!text) return;
             if (!dealData[dealId]) return;
             if (!dealData[dealId].notes) dealData[dealId].notes = [];
-            dealData[dealId].notes.unshift({ ts: Date.now(), text });
+            dealData[dealId].notes.unshift('');
             renderDealNotes(dealId);
             logFeedbackEntry('ri-edit-2-line text-indigo-500', 'Note added', `Saved to ${dealData[dealId].dealName}`);
+        }
+
+        function saveDealNote(dealId, index, text) {
+            if (!dealData[dealId]) return;
+            if (!dealData[dealId].notes) dealData[dealId].notes = [];
+            const current = dealData[dealId].notes[index];
+            if (typeof current === 'string') {
+                dealData[dealId].notes[index] = text;
+            } else {
+                dealData[dealId].notes[index] = { ...(current || {}), text };
+            }
+        }
+
+        function openCompany(name) {
+            alert(`Open ${name} details`);
         }
 
         function quickThreadAction(event, dealId, action) {
