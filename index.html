@@ -804,10 +804,10 @@
                     <section>
                         <h3 class="font-bold text-base mb-3">Navigate</h3>
                         <div class="grid grid-cols-2 gap-2 text-sm font-semibold">
-                            <a href="#" class="flex items-center justify-center border border-gray-200 rounded-lg py-2 text-indigo-600 hover:bg-indigo-50">
+                            <a id="nav-companies" href="#" class="flex items-center justify-center border border-gray-200 rounded-lg py-2 text-indigo-600 hover:bg-indigo-50">
                                 <i class="ri-building-4-line mr-2"></i>Companies
                             </a>
-                            <a href="#" class="flex items-center justify-center border border-gray-200 rounded-lg py-2 text-indigo-600 hover:bg-indigo-50">
+                            <a id="nav-contacts" href="#" class="flex items-center justify-center border border-gray-200 rounded-lg py-2 text-indigo-600 hover:bg-indigo-50">
                                 <i class="ri-user-3-line mr-2"></i>Contacts
                             </a>
                         </div>
@@ -847,7 +847,61 @@
                     <button id="btn-pipeline-back" type="button" class="p-1 rounded hover:bg-gray-200"><i class="ri-arrow-left-s-line text-lg"></i></button>
                     <h3 class="font-bold text-base ml-2">Pipeline</h3>
                 </div>
+                <div class="mb-3">
+                    <div class="relative">
+                        <i class="ri-search-2-line absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
+                        <input id="dh-pipeline-search" type="text" placeholder="Search deals…" class="w-full pl-9 pr-3 py-2 border border-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" />
+                    </div>
+                </div>
                 <div id="dh-pipeline-container" class="space-y-3"></div>
+            </div>
+
+            <!-- Companies View -->
+            <div id="dh-companies-view" class="hidden p-4 text-sm" hidden>
+                <div class="flex items-center mb-3">
+                    <button id="btn-companies-back" type="button" class="p-1 rounded hover:bg-gray-200"><i class="ri-arrow-left-s-line text-lg"></i></button>
+                    <h3 class="font-bold text-base ml-2">Companies</h3>
+                </div>
+                <div class="mb-3">
+                    <div class="relative">
+                        <i class="ri-search-2-line absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
+                        <input id="dh-companies-search" type="text" placeholder="Search companies…" class="w-full pl-9 pr-3 py-2 border border-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" />
+                    </div>
+                </div>
+                <div id="dh-companies-container" class="flex flex-wrap gap-3 overflow-y-auto max-h-[70vh] pr-1"></div>
+            </div>
+
+            <!-- Contacts View -->
+            <div id="dh-contacts-view" class="hidden p-4 text-sm" hidden>
+                <div class="flex items-center mb-3">
+                    <button id="btn-contacts-back" type="button" class="p-1 rounded hover:bg-gray-200"><i class="ri-arrow-left-s-line text-lg"></i></button>
+                    <h3 class="font-bold text-base ml-2">Contacts</h3>
+                </div>
+                <div class="mb-3">
+                    <div class="relative">
+                        <i class="ri-search-2-line absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
+                        <input id="dh-contacts-search" type="text" placeholder="Search contacts…" class="w-full pl-9 pr-3 py-2 border border-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" />
+                    </div>
+                </div>
+                <div id="dh-contacts-container" class="flex flex-wrap gap-3 overflow-y-auto max-h-[70vh] pr-1"></div>
+            </div>
+
+            <!-- Company Detail View -->
+            <div id="dh-company-detail-view" class="hidden p-4 text-sm" hidden>
+                <div class="flex items-center mb-3">
+                    <button id="btn-companydetail-back" type="button" class="p-1 rounded hover:bg-gray-200"><i class="ri-arrow-left-s-line text-lg"></i></button>
+                    <h3 id="companydetail-title" class="font-bold text-base ml-2">Company</h3>
+                </div>
+                <div id="dh-company-detail-container" class="space-y-4"></div>
+            </div>
+
+            <!-- Contact Detail View -->
+            <div id="dh-contact-detail-view" class="hidden p-4 text-sm" hidden>
+                <div class="flex items-center mb-3">
+                    <button id="btn-contactdetail-back" type="button" class="p-1 rounded hover:bg-gray-200"><i class="ri-arrow-left-s-line text-lg"></i></button>
+                    <h3 id="contactdetail-title" class="font-bold text-base ml-2">Contact</h3>
+                </div>
+                <div id="dh-contact-detail-container" class="space-y-4"></div>
             </div>
         </aside>
     </div>
@@ -1214,7 +1268,7 @@
                     <span class="meta-label">Contacts:</span>
                     <span class="contacts-wrap">
                         ${data.contacts.map(c => `
-                            <span class=\"contact-chip\">
+                            <span class=\"contact-chip cursor-pointer\" onclick=\"openContact('${(c.name||'').replace(/'/g, "\\'")}', '${(data.company||'').replace(/'/g, "\\'")}')\">
                                 <span class=\"avatar\">${(c.avatar||c.name||'?').toString().slice(0,1)}</span>
                                 <span>${c.name}</span>
                             </span>
@@ -1311,8 +1365,90 @@
             }
         }
 
+        let currentCompanyDetailName = '';
         function openCompany(name) {
-            alert(`Open ${name} details`);
+            showCompanyDetail(name);
+        }
+
+        function showCompanyDetail(name) {
+            const lv = document.getElementById('dh-login-view');
+            const ov = document.getElementById('dh-onboarding-view');
+            const dv = document.getElementById('dh-inbox-view');
+            if (lv) { lv.classList.add('hidden'); lv.hidden = true; }
+            if (ov) { ov.classList.add('hidden'); ov.hidden = true; }
+            if (dv) { dv.classList.add('hidden'); dv.hidden = true; }
+            if (dhPipelineView) { dhPipelineView.classList.add('hidden'); dhPipelineView.hidden = true; }
+            if (dhCompaniesView) { dhCompaniesView.classList.add('hidden'); dhCompaniesView.hidden = true; }
+            if (dhContactsView) { dhContactsView.classList.add('hidden'); dhContactsView.hidden = true; }
+            if (dhCompanyDetailView) { dhCompanyDetailView.classList.remove('hidden'); dhCompanyDetailView.hidden = false; }
+            currentCompanyDetailName = name || '';
+            renderCompanyDetail(currentCompanyDetailName);
+        }
+
+        function companyDeals(name) {
+            return Object.entries(dealData).filter(([,d]) => (d.company||'') === name).map(([id,d]) => ({ id, ...d }));
+        }
+        function companyContacts(name) {
+            const seen = new Set();
+            const out = [];
+            companyDeals(name).forEach(d => {
+                (d.contacts||[]).forEach(c => {
+                    const k = `${c.name}`;
+                    if (!seen.has(k)) { seen.add(k); out.push(c); }
+                });
+            });
+            return out;
+        }
+        function renderCompanyDetail(name) {
+            const titleEl = document.getElementById('companydetail-title');
+            if (titleEl) titleEl.textContent = name || 'Company';
+            const container = document.getElementById('dh-company-detail-container');
+            if (!container) return;
+            const info = lookupCompanyInfo(name);
+            const deals = companyDeals(name);
+            const contacts = companyContacts(name);
+            container.innerHTML = `
+                <div class=\"bg-white border border-gray-200 rounded-lg p-3\">
+                    <div class=\"flex items-center gap-3\">
+                        <span class=\"inline-flex items-center justify-center w-10 h-10 rounded-md bg-indigo-500 text-white text-base\">${(name||'?').toString().slice(0,1)}</span>
+                        <div>
+                            <div class=\"font-semibold text-gray-900\">${name}</div>
+                            <div class=\"text-xs text-gray-600\">
+                                ${info.domain ? `<a href=\"https://${info.domain}\" target=\"_blank\" class=\"text-indigo-600 hover:underline\">${info.domain}</a>` : ''}
+                                ${info.industry ? `<span class=\"ml-2 text-gray-500\">• ${info.industry}</span>` : ''}
+                                ${info.hq ? `<span class=\"ml-2 text-gray-500\">• ${info.hq}</span>` : ''}
+                            </div>
+                        </div>
+                    </div>
+                    <div class=\"mt-3 text-sm text-gray-700\">${info.description || ''}</div>
+                </div>
+
+                <div class=\"bg-white border border-gray-200 rounded-lg p-3\">
+                    <h4 class=\"text-xs font-semibold text-gray-500 uppercase mb-2\">Contacts</h4>
+                    ${contacts.length ? contacts.map(c => `
+                        <div class=\"flex items-center gap-2 py-1\">
+                            <span class=\"inline-flex items-center justify-center w-6 h-6 rounded-full bg-indigo-500 text-white text-[11px]\">${(c.avatar||c.name||'?').toString().slice(0,1)}</span>
+                            <div class=\"text-sm\">${c.name}</div>
+                        </div>
+                    `).join('') : '<div class=\"text-[11px] text-gray-400\">No contacts found</div>'}
+                </div>
+
+                <div class=\"bg-white border border-gray-200 rounded-lg p-3\">
+                    <h4 class=\"text-xs font-semibold text-gray-500 uppercase mb-2\">Deals</h4>
+                    ${deals.length ? deals.map(d => `
+                        <div class=\"p-2 border border-gray-100 rounded-md mb-2\">
+                            <div class=\"flex items-center justify-between\">
+                                <div class=\"font-semibold text-gray-900 text-sm\">${d.dealName}</div>
+                                <span class=\"label-chip ${statusClass(canonicalizeStatus(d.status))}\">${canonicalizeStatus(d.status)}</span>
+                            </div>
+                            <div class=\"text-xs text-gray-500 mt-1 flex items-center justify-between\">
+                                <span class=\"truncate\">${d.company || ''}</span>
+                                <span>${d.value || ''}</span>
+                            </div>
+                        </div>
+                    `).join('') : '<div class=\"text-[11px] text-gray-400\">No deals found</div>'}
+                </div>
+            `;
         }
 
         function quickThreadAction(event, dealId, action) {
@@ -1401,6 +1537,10 @@
         const dhOnboardingView = document.getElementById('dh-onboarding-view');
         const dhDashboardView = document.getElementById('dh-inbox-view');
         const dhPipelineView = document.getElementById('dh-pipeline-view');
+        const dhCompaniesView = document.getElementById('dh-companies-view');
+        const dhContactsView = document.getElementById('dh-contacts-view');
+        const dhCompanyDetailView = document.getElementById('dh-company-detail-view');
+        const dhContactDetailView = document.getElementById('dh-contact-detail-view');
         let dhObTimer = null;
 
         function showDhLogin() {
@@ -1408,6 +1548,10 @@
             if (dhOnboardingView) { dhOnboardingView.classList.add('hidden'); dhOnboardingView.hidden = true; }
             if (dhDashboardView) { dhDashboardView.classList.add('hidden'); dhDashboardView.hidden = true; }
             if (dhPipelineView) { dhPipelineView.classList.add('hidden'); dhPipelineView.hidden = true; }
+            if (dhCompaniesView) { dhCompaniesView.classList.add('hidden'); dhCompaniesView.hidden = true; }
+            if (dhContactsView) { dhContactsView.classList.add('hidden'); dhContactsView.hidden = true; }
+            if (dhCompanyDetailView) { dhCompanyDetailView.classList.add('hidden'); dhCompanyDetailView.hidden = true; }
+            if (dhContactDetailView) { dhContactDetailView.classList.add('hidden'); dhContactDetailView.hidden = true; }
             document.body.classList.add('hide-dh');
         }
         function showDhOnboarding() {
@@ -1415,6 +1559,10 @@
             if (dhOnboardingView) { dhOnboardingView.classList.remove('hidden'); dhOnboardingView.hidden = false; }
             if (dhDashboardView) { dhDashboardView.classList.add('hidden'); dhDashboardView.hidden = true; }
             if (dhPipelineView) { dhPipelineView.classList.add('hidden'); dhPipelineView.hidden = true; }
+            if (dhCompaniesView) { dhCompaniesView.classList.add('hidden'); dhCompaniesView.hidden = true; }
+            if (dhContactsView) { dhContactsView.classList.add('hidden'); dhContactsView.hidden = true; }
+            if (dhCompanyDetailView) { dhCompanyDetailView.classList.add('hidden'); dhCompanyDetailView.hidden = true; }
+            if (dhContactDetailView) { dhContactDetailView.classList.add('hidden'); dhContactDetailView.hidden = true; }
             document.body.classList.add('hide-dh');
         }
         function showDhDashboard() {
@@ -1422,6 +1570,10 @@
             if (dhOnboardingView) { dhOnboardingView.classList.add('hidden'); dhOnboardingView.hidden = true; }
             if (dhDashboardView) { dhDashboardView.classList.remove('hidden'); dhDashboardView.hidden = false; }
             if (dhPipelineView) { dhPipelineView.classList.add('hidden'); dhPipelineView.hidden = true; }
+            if (dhCompaniesView) { dhCompaniesView.classList.add('hidden'); dhCompaniesView.hidden = true; }
+            if (dhContactsView) { dhContactsView.classList.add('hidden'); dhContactsView.hidden = true; }
+            if (dhCompanyDetailView) { dhCompanyDetailView.classList.add('hidden'); dhCompanyDetailView.hidden = true; }
+            if (dhContactDetailView) { dhContactDetailView.classList.add('hidden'); dhContactDetailView.hidden = true; }
             document.body.classList.remove('hide-dh');
             updateDhInboxLabels();
         }
@@ -1476,6 +1628,47 @@
             showDhLogin();
         }
 
+        // Company directory (mock enrichment data)
+        const companyDirectory = {
+            'Innovate Inc.': { domain: 'innovate.com', industry: 'Technology', description: 'AI-driven solutions for enterprise productivity.', hq: 'San Francisco, CA' },
+            'QuantumLeap': { domain: 'quantumleap.co', industry: 'SaaS', description: 'Workflow automation at scale for growth teams.', hq: 'Austin, TX' },
+            'Fusion Dynamics': { domain: 'fusiondynamics.com', industry: 'Consulting', description: 'Digital transformation and analytics consultancy.', hq: 'New York, NY' },
+            'ACME Inc.': { domain: 'acme.com', industry: 'Manufacturing', description: 'Industrial devices and safety equipment.', hq: 'Chicago, IL' },
+            'Globex Corp': { domain: 'globex.com', industry: 'Energy', description: 'Global energy solutions and research.', hq: 'Houston, TX' },
+            'Initech': { domain: 'initech.com', industry: 'Software', description: 'Business software and TPS reports.', hq: 'Los Angeles, CA' },
+            'Soylent': { domain: 'soylent.com', industry: 'Food & Beverage', description: 'Nutritional products for busy professionals.', hq: 'San Francisco, CA' },
+            'Stark Labs': { domain: 'starklabs.io', industry: 'R&D', description: 'Advanced research and technologies.', hq: 'Malibu, CA' },
+            'Wayne Enterprises': { domain: 'wayneenterprises.com', industry: 'Conglomerate', description: 'Diversified holdings and innovation labs.', hq: 'Gotham City' },
+            'Hooli': { domain: 'hooli.xyz', industry: 'Technology', description: 'Next-gen platform and services.', hq: 'Palo Alto, CA' },
+            'Pied Piper': { domain: 'piedpiper.com', industry: 'SaaS', description: 'Decentralized internet and compression tech.', hq: 'Palo Alto, CA' },
+            'Aperture Science': { domain: 'aperturelabs.com', industry: 'Research', description: 'Experimental research and testing facilities.', hq: 'Cleveland, OH' },
+            'Black Mesa': { domain: 'blackmesa.com', industry: 'Research', description: 'Advanced materials research and logistics.', hq: 'New Mexico' },
+            'Cyberdyne Systems': { domain: 'cyberdyne.com', industry: 'Robotics', description: 'Autonomous systems and robotics.', hq: 'Los Angeles, CA' },
+            'Tyrell Corp': { domain: 'tyrellcorp.com', industry: 'Biotech', description: 'Bioengineered systems and replicants.', hq: 'Los Angeles, CA' },
+            'Oscorp': { domain: 'oscorp.com', industry: 'Chemicals', description: 'Chemical and industrial innovations.', hq: 'New York, NY' },
+            'Wonka Industries': { domain: 'wonka.com', industry: 'Food & Beverage', description: 'Confectionery and imaginative treats.', hq: 'London, UK' },
+            'Waystar Royco': { domain: 'waystar.com', industry: 'Media', description: 'Global media and hospitality.', hq: 'New York, NY' },
+            'Vandelay Industries': { domain: 'vandelay.com', industry: 'Import/Export', description: 'Latex and import/export.', hq: 'New York, NY' },
+            'Massive Dynamic': { domain: 'massivedynamic.com', industry: 'Technology', description: 'Frontier technologies and R&D.', hq: 'New York, NY' },
+            'Monarch Solutions': { domain: 'monarchsolutions.com', industry: 'Technology', description: 'Tech and temporal research.', hq: 'Riverport' },
+            'Octan Corp': { domain: 'octan.com', industry: 'Manufacturing', description: 'Building blocks and fuels.', hq: 'Bricksburg' },
+            'Yoyodyne': { domain: 'yoyodyne.com', industry: 'Aerospace', description: 'Aerospace and propulsion systems.', hq: 'Grover’s Mill, NJ' },
+            'Blue Sun': { domain: 'bluesun.com', industry: 'Consumer Goods', description: 'Consumer goods conglomerate.', hq: 'Beijing' },
+            'Abstergo': { domain: 'abstergo.com', industry: 'Pharma', description: 'Pharmaceutical and historical research.', hq: 'Rome, IT' },
+            'Hyperion': { domain: 'hyperioncorp.com', industry: 'Defense', description: 'Defense technologies and hardware.', hq: 'Houston, TX' },
+            'Shinra Electric': { domain: 'shinra.com', industry: 'Energy', description: 'Power and development.', hq: 'Midgar' },
+            'Umbrella Corporation': { domain: 'umbrella.com', industry: 'Pharma', description: 'Pharmaceutical and bioengineering.', hq: 'Raccoon City' },
+            'Nakatomi Trading': { domain: 'nakatomi.com', industry: 'Finance', description: 'Investments and trading.', hq: 'Tokyo' },
+            'Prestige Worldwide': { domain: 'prestige.com', industry: 'Entertainment', description: 'Events and entertainment.', hq: 'Catalina Wine Mixer' },
+        };
+        function lookupCompanyInfo(name) {
+            const base = companyDirectory[name] || null;
+            if (base) return { name, ...base };
+            const slug = (name || '').toLowerCase().replace(/[^a-z0-9]+/g,'').replace(/^(.*)$/,'$1.com');
+            return { name: name || 'Unknown', domain: slug || '', industry: 'General', description: 'No enrichment available', hq: '' };
+        }
+
+        let pipelineQuery = '';
         function renderPipeline() {
             const container = document.getElementById('dh-pipeline-container');
             if (!container) return;
@@ -1486,7 +1679,10 @@
                 const d = dealData[id];
                 const st = canonicalizeStatus(d.status);
                 if (!groups[st]) groups[st] = [];
-                groups[st].push({id, d});
+                const hay = `${d.dealName||''} ${d.company||''} ${d.value||''}`.toLowerCase();
+                if (!pipelineQuery || hay.includes(pipelineQuery)) {
+                    groups[st].push({id, d});
+                }
             });
             // Add extra closed deals for demo
             if (!groups['Closed']) groups['Closed'] = [];
@@ -1498,7 +1694,12 @@
                 { dealName: 'Stark Labs License', company: 'Stark Labs', value: '$22,000', status: 'Closed' },
                 { dealName: 'Wayne Ent. Support', company: 'Wayne Enterprises', value: '$5,400', status: 'Closed' }
             ];
-            closedExtras.forEach((d, idx) => groups['Closed'].push({ id: `closed-${idx}`, d }));
+            closedExtras.forEach((d, idx) => {
+                const hay = `${d.dealName||''} ${d.company||''} ${d.value||''}`.toLowerCase();
+                if (!pipelineQuery || hay.includes(pipelineQuery)) {
+                    groups['Closed'].push({ id: `closed-${idx}`, d });
+                }
+            });
             const parts = [];
             order.forEach(st => {
                 const list = groups[st] || [];
@@ -1559,6 +1760,316 @@
             if (back) back.onclick = showDhDashboard;
             const home = document.getElementById('btn-dh-home');
             if (home) home.onclick = showDhDashboard;
+            const q = document.getElementById('dh-pipeline-search');
+            if (q) q.addEventListener('input', (e) => { pipelineQuery = (e.target.value||'').toLowerCase(); renderPipeline(); });
+        }
+
+        // Companies view helpers
+        let companiesQuery = '';
+        function collectCompanies() {
+            const map = new Map();
+            Object.values(dealData).forEach(d => {
+                const name = d.company || 'Unknown';
+                if (!map.has(name)) map.set(name, { name, countDeals: 0, contacts: new Set(), avatar: (d.companyAvatar || name.slice(0,1)) });
+                const entry = map.get(name);
+                entry.countDeals += 1;
+                (d.contacts||[]).forEach(c => entry.contacts.add(c.name));
+            });
+            // Add directory companies not present in deals
+            Object.keys(companyDirectory).forEach(name => {
+                if (!map.has(name)) {
+                    map.set(name, { name, countDeals: 0, contacts: new Set(), avatar: name.slice(0,1) });
+                }
+            });
+            return Array.from(map.values()).map(e => {
+                const info = lookupCompanyInfo(e.name);
+                return ({
+                    name: e.name,
+                    avatar: e.avatar,
+                    countDeals: e.countDeals,
+                    countContacts: e.contacts.size,
+                    domain: info.domain || '',
+                    industry: info.industry || ''
+                });
+            });
+        }
+        function renderCompanies() {
+            const container = document.getElementById('dh-companies-container');
+            if (!container) return;
+            const items = collectCompanies().filter(c => {
+                if (!companiesQuery) return true;
+                const hay = `${c.name} ${c.countDeals} ${c.countContacts} ${c.domain||''} ${c.industry||''}`.toLowerCase();
+                return hay.includes(companiesQuery);
+            });
+            if (!items.length) {
+                container.innerHTML = '<div class="text-[11px] text-gray-400">No companies found</div>';
+                return;
+            }
+            container.innerHTML = items.map(c => `
+                <div class=\"w-80 bg-white border border-gray-200 rounded-md p-3 cursor-pointer hover:shadow-sm\" role=\"button\" tabindex=\"0\"
+                     onclick=\"openCompany('${c.name.replace(/'/g, "\\'")}')\"
+                     onkeydown=\"if(event.key==='Enter'){openCompany('${c.name.replace(/'/g, "\\'")}')}\" >
+                    <div class=\"flex items-start gap-3\">
+                        <span class=\"inline-flex items-center justify-center w-8 h-8 rounded-md bg-indigo-500 text-white text-sm\">${(c.avatar||c.name||'?').toString().slice(0,1)}</span>
+                        <div class=\"flex-1 min-w-0\">
+                            <div class=\"flex items-center justify-between\">
+                                <div class=\"font-semibold text-gray-900 truncate\">${c.name}</div>
+                                <div class=\"text-xs text-gray-500 truncate ml-2 whitespace-nowrap\">${c.countDeals} deals; ${c.countContacts} contacts</div>
+                            </div>
+                            <div class=\"flex items-center justify-between mt-1 text-xs\">
+                                ${c.domain
+                                    ? `<a href=\\\"https://${c.domain}\\\" target=\\\"_blank\\\" class=\\\"text-indigo-600 hover:underline truncate\\\" onclick=\\\"event.stopPropagation()\\\">${c.domain}</a>`
+                                    : '<span class=\\\"text-gray-400\\\">—</span>'}
+                                <div class=\"text-xs text-gray-500 ml-2 truncate\">${c.industry || ''}</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+        function showDhCompanies() {
+            const lv = document.getElementById('dh-login-view');
+            const ov = document.getElementById('dh-onboarding-view');
+            const dv = document.getElementById('dh-inbox-view');
+            if (lv) { lv.classList.add('hidden'); lv.hidden = true; }
+            if (ov) { ov.classList.add('hidden'); ov.hidden = true; }
+            if (dv) { dv.classList.add('hidden'); dv.hidden = true; }
+            if (dhPipelineView) { dhPipelineView.classList.add('hidden'); dhPipelineView.hidden = true; }
+            if (dhContactsView) { dhContactsView.classList.add('hidden'); dhContactsView.hidden = true; }
+            if (dhCompaniesView) { dhCompaniesView.classList.remove('hidden'); dhCompaniesView.hidden = false; }
+            renderCompanies();
+        }
+        function initCompaniesHandlers() {
+            const companiesLink = document.getElementById('nav-companies');
+            if (companiesLink) companiesLink.addEventListener('click', (e) => { e.preventDefault(); showDhCompanies(); });
+            const back = document.getElementById('btn-companies-back');
+            if (back) back.onclick = showDhDashboard;
+            const q = document.getElementById('dh-companies-search');
+            if (q) q.addEventListener('input', (e) => { companiesQuery = (e.target.value||'').toLowerCase(); renderCompanies(); });
+        }
+
+        // Contacts view helpers
+        let contactsQuery = '';
+        const contactDirectory = {
+            'Sarah Chen': {
+                email: 'sarah@innovate.com', title: 'VP Partnerships',
+                phone: '+1 (415) 555-0112', location: 'San Francisco, CA',
+                linkedin: 'https://www.linkedin.com/in/sarah-chen', lastActive: 'Sep 18', score: 82, tags: ['Decision maker','Partnerships']
+            },
+            'John Doe': {
+                email: 'john.doe@innovate.com', title: 'Director, Strategy',
+                phone: '+1 (650) 555-0144', location: 'San Mateo, CA',
+                linkedin: '', lastActive: 'Sep 16', score: 71, tags: ['Champion']
+            },
+            'Alex Rivera': {
+                email: 'alex@quantumleap.co', title: 'Head of Procurement',
+                phone: '+1 (737) 555-0188', location: 'Austin, TX',
+                linkedin: 'https://www.linkedin.com/in/alex-rivera', lastActive: 'Sep 17', score: 76, tags: ['Procurement','Negotiation']
+            },
+            'Mark Johnson': {
+                email: 'mjohnson@fusiondynamics.com', title: 'Project Manager',
+                phone: '+1 (212) 555-0176', location: 'New York, NY',
+                linkedin: '', lastActive: 'Sep 17', score: 65, tags: ['Evaluator']
+            },
+            'Maria Garcia': {
+                email: 'maria.g@example.com', title: 'Operations Lead',
+                phone: '+1 (213) 555-0133', location: 'Los Angeles, CA',
+                linkedin: 'https://www.linkedin.com/in/maria-garcia', lastActive: 'Sep 15', score: 60, tags: ['Inbound']
+            },
+        };
+        function lookupContactInfo(name) {
+            return contactDirectory[name] || { email: '', title: '', phone: '', location: '', linkedin: '', lastActive: '', score: '', tags: [] };
+        }
+        function collectContacts() {
+            const map = new Map();
+            Object.values(dealData).forEach(d => {
+                (d.contacts||[]).forEach(c => {
+                    const name = c.name;
+                    if (!map.has(name)) map.set(name, { name, avatar: c.avatar || (name||'?').toString().slice(0,1), companies: new Set(), countDeals: 0 });
+                    const entry = map.get(name);
+                    entry.companies.add(d.company || 'Unknown');
+                    entry.countDeals += 1;
+                });
+            });
+            return Array.from(map.values()).map(e => {
+                const info = lookupContactInfo(e.name);
+                return ({
+                    name: e.name,
+                    avatar: e.avatar,
+                    company: Array.from(e.companies)[0] || 'Unknown',
+                    countDeals: e.countDeals,
+                    email: info.email || '',
+                    title: info.title || ''
+                });
+            });
+        }
+        function renderContacts() {
+            const container = document.getElementById('dh-contacts-container');
+            if (!container) return;
+            const items = collectContacts().filter(c => {
+                if (!contactsQuery) return true;
+                const hay = `${c.name} ${c.company} ${c.email||''} ${c.title||''}`.toLowerCase();
+                return hay.includes(contactsQuery);
+            });
+            if (!items.length) {
+                container.innerHTML = '<div class="text-[11px] text-gray-400">No contacts found</div>';
+                return;
+            }
+            container.innerHTML = items.map(p => `
+                <div class=\"w-80 bg-white border border-gray-200 rounded-md p-3 cursor-pointer hover:shadow-sm\" role=\"button\" tabindex=\"0\"
+                     onclick=\"openContact('${p.name.replace(/'/g, "\\'")}', '${(p.company||'').replace(/'/g, "\\'")}')\"
+                     onkeydown=\"if(event.key==='Enter'){openContact('${p.name.replace(/'/g, "\\'")}', '${(p.company||'').replace(/'/g, "\\'")}')}\" >
+                    <div class=\"flex items-start gap-3\">
+                        <span class=\"inline-flex items-center justify-center w-8 h-8 rounded-full bg-indigo-500 text-white text-sm\">${(p.avatar||p.name||'?').toString().slice(0,1)}</span>
+                        <div class=\"flex-1 min-w-0\">
+                            <div class=\"flex items-center justify-between\">
+                                <div class=\"font-semibold text-gray-900 truncate\">${p.name}</div>
+                                <div class=\"text-xs text-gray-500 truncate ml-2 whitespace-nowrap\">${p.countDeals} deals</div>
+                            </div>
+                            <div class=\"mt-1 text-xs text-gray-500 truncate\">${p.title ? `${p.title}, ` : ''}${p.company || ''}</div>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+        function showDhContacts() {
+            const lv = document.getElementById('dh-login-view');
+            const ov = document.getElementById('dh-onboarding-view');
+            const dv = document.getElementById('dh-inbox-view');
+            if (lv) { lv.classList.add('hidden'); lv.hidden = true; }
+            if (ov) { ov.classList.add('hidden'); ov.hidden = true; }
+            if (dv) { dv.classList.add('hidden'); dv.hidden = true; }
+            if (dhPipelineView) { dhPipelineView.classList.add('hidden'); dhPipelineView.hidden = true; }
+            if (dhCompaniesView) { dhCompaniesView.classList.add('hidden'); dhCompaniesView.hidden = true; }
+            if (dhContactsView) { dhContactsView.classList.remove('hidden'); dhContactsView.hidden = false; }
+            renderContacts();
+        }
+        function initContactsHandlers() {
+            const contactsLink = document.getElementById('nav-contacts');
+            if (contactsLink) contactsLink.addEventListener('click', (e) => { e.preventDefault(); showDhContacts(); });
+            const back = document.getElementById('btn-contacts-back');
+            if (back) back.onclick = showDhDashboard;
+            const q = document.getElementById('dh-contacts-search');
+            if (q) q.addEventListener('input', (e) => { contactsQuery = (e.target.value||'').toLowerCase(); renderContacts(); });
+        }
+
+        function initCompanyDetailHandlers() {
+            const back = document.getElementById('btn-companydetail-back');
+            if (back) back.onclick = showDhCompanies;
+        }
+
+        // Contact detail
+        let currentContactDetailName = '';
+        function openContact(name, company) {
+            showContactDetail(name, company);
+        }
+        function showContactDetail(name, company) {
+            const lv = document.getElementById('dh-login-view');
+            const ov = document.getElementById('dh-onboarding-view');
+            const dv = document.getElementById('dh-inbox-view');
+            if (lv) { lv.classList.add('hidden'); lv.hidden = true; }
+            if (ov) { ov.classList.add('hidden'); ov.hidden = true; }
+            if (dv) { dv.classList.add('hidden'); dv.hidden = true; }
+            if (dhPipelineView) { dhPipelineView.classList.add('hidden'); dhPipelineView.hidden = true; }
+            if (dhCompaniesView) { dhCompaniesView.classList.add('hidden'); dhCompaniesView.hidden = true; }
+            if (dhContactsView) { dhContactsView.classList.add('hidden'); dhContactsView.hidden = true; }
+            if (dhCompanyDetailView) { dhCompanyDetailView.classList.add('hidden'); dhCompanyDetailView.hidden = true; }
+            if (dhContactDetailView) { dhContactDetailView.classList.remove('hidden'); dhContactDetailView.hidden = false; }
+            currentContactDetailName = name || '';
+            renderContactDetail(currentContactDetailName, company);
+        }
+        function contactDeals(name) {
+            const out = [];
+            Object.entries(dealData).forEach(([id, d]) => {
+                if ((d.contacts||[]).some(c => c.name === name)) {
+                    out.push({ id, ...d });
+                }
+            });
+            return out;
+        }
+        function pickContactCompany(name, fallback) {
+            const counts = new Map();
+            Object.values(dealData).forEach(d => {
+                if ((d.contacts||[]).some(c => c.name === name)) {
+                    const k = d.company || 'Unknown';
+                    counts.set(k, (counts.get(k)||0)+1);
+                }
+            });
+            if (fallback) return fallback;
+            let best = 'Unknown', bestN = -1;
+            counts.forEach((n, k) => { if (n > bestN) { bestN = n; best = k; } });
+            return best;
+        }
+        function renderContactDetail(name, company) {
+            const titleEl = document.getElementById('contactdetail-title');
+            if (titleEl) titleEl.textContent = name || 'Contact';
+            const container = document.getElementById('dh-contact-detail-container');
+            if (!container) return;
+            const info = lookupContactInfo(name);
+            const deals = contactDeals(name);
+            const comp = company || pickContactCompany(name);
+            const compInfo = lookupCompanyInfo(comp);
+            container.innerHTML = `
+                <div class=\"bg-white border border-gray-200 rounded-lg p-3\">
+                    <div class=\"flex items-center gap-3\">
+                        <span class=\"inline-flex items-center justify-center w-10 h-10 rounded-full bg-indigo-500 text-white text-base\">${(name||'?').toString().slice(0,1)}</span>
+                        <div class=\"min-w-0\">
+                            <div class=\"font-semibold text-gray-900\">${name}</div>
+                            <div class=\"grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-1 mt-2 text-xs text-gray-600\">
+                                ${info.title ? `<div class=\\\"flex items-center gap-2 min-w-0\\\"><i class=\\\"ri-briefcase-line text-gray-400\\\"></i><span class=\\\"truncate\\\">${info.title}</span></div>` : ''}
+                                ${info.email ? `<div class=\\\"flex items-center gap-2 min-w-0\\\"><i class=\\\"ri-mail-line text-gray-400\\\"></i><a href=\\\"mailto:${info.email}\\\" class=\\\"text-indigo-600 hover:underline truncate\\\">${info.email}</a></div>` : ''}
+                                ${info.phone ? `<div class=\\\"flex items-center gap-2 min-w-0\\\"><i class=\\\"ri-phone-line text-gray-400\\\"></i><a href=\\\"tel:${info.phone.replace(/[^+\d]/g,'')}\\\" class=\\\"truncate\\\">${info.phone}</a></div>` : ''}
+                                ${info.location ? `<div class=\\\"flex items-center gap-2 min-w-0\\\"><i class=\\\"ri-map-pin-line text-gray-400\\\"></i><span class=\\\"truncate\\\">${info.location}</span></div>` : ''}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class=\"bg-white border border-gray-200 rounded-lg p-3\">
+                    <h4 class=\"text-xs font-semibold text-gray-500 uppercase mb-2\">Enriched Info</h4>
+                    <div class=\"flex flex-wrap gap-2 text-xs\">
+                        ${info.linkedin ? `<a href=\\\"${info.linkedin}\\\" target=\\\"_blank\\\" class=\\\"px-2 py-1 rounded-full border border-indigo-200 text-indigo-600 hover:bg-indigo-50\\\"><i class=\\\"ri-linkedin-box-line mr-1\\\"></i>LinkedIn</a>` : ''}
+                        ${info.lastActive ? `<span class=\\\"px-2 py-1 rounded-full border border-gray-200 text-gray-700\\\"><i class=\\\"ri-time-line mr-1\\\"></i>Last active: ${info.lastActive}</span>` : ''}
+                        ${info.score ? `<span class=\\\"px-2 py-1 rounded-full border border-emerald-200 text-emerald-700\\\"><i class=\\\"ri-pulse-line mr-1\\\"></i>Score: ${info.score}</span>` : ''}
+                        ${(info.tags||[]).map(t => `<span class=\\\"px-2 py-1 rounded-full border border-gray-200 text-gray-700\\\">${t}</span>`).join('')}
+                        ${(!info.linkedin && !info.lastActive && !info.score && !(info.tags||[]).length) ? '<span class=\\\"text-[11px] text-gray-400\\\">No enrichment available</span>' : ''}
+                    </div>
+                </div>
+
+                <div class=\"bg-white border border-gray-200 rounded-lg p-3\">
+                    <h4 class=\"text-xs font-semibold text-gray-500 uppercase mb-2\">Company</h4>
+                    <div class=\"flex items-center justify-between\">
+                        <div class=\"min-w-0\">
+                            <div class=\"font-semibold text-gray-900 truncate\">${comp}</div>
+                            <div class=\"text-xs text-gray-600 truncate\">
+                                ${compInfo.domain ? `<a href=\\\"https://${compInfo.domain}\\\" target=\\\"_blank\\\" class=\\\"text-indigo-600 hover:underline\\\">${compInfo.domain}</a>` : ''}
+                                ${compInfo.industry ? `<span class=\\\"ml-2 text-gray-500\\\">• ${compInfo.industry}</span>` : ''}
+                            </div>
+                        </div>
+                        <button class=\"text-xs font-semibold text-indigo-600 px-2 py-1 border border-indigo-200 rounded-full hover:bg-indigo-50\" onclick=\"openCompany('${(comp||'').replace(/'/g, "\\'")}')\">Open</button>
+                    </div>
+                </div>
+
+                <div class=\"bg-white border border-gray-200 rounded-lg p-3\">
+                    <h4 class=\"text-xs font-semibold text-gray-500 uppercase mb-2\">Deals</h4>
+                    ${deals.length ? deals.map(d => `
+                        <div class=\"p-2 border border-gray-100 rounded-md mb-2\">
+                            <div class=\"flex items-center justify-between\">
+                                <div class=\"font-semibold text-gray-900 text-sm truncate\">${d.dealName}</div>
+                                <span class=\"label-chip ${statusClass(canonicalizeStatus(d.status))}\">${canonicalizeStatus(d.status)}</span>
+                            </div>
+                            <div class=\"text-xs text-gray-500 mt-1 flex items-center justify-between\">
+                                <span class=\"truncate\">${d.company || ''}</span>
+                                <span>${d.value || ''}</span>
+                            </div>
+                        </div>
+                    `).join('') : '<div class=\"text-[11px] text-gray-400\">No deals found</div>'}
+                </div>
+            `;
+        }
+        function initContactDetailHandlers() {
+            const back = document.getElementById('btn-contactdetail-back');
+            if (back) back.onclick = showDhContacts;
         }
 
         document.addEventListener('DOMContentLoaded', () => {
@@ -1569,6 +2080,10 @@
             document.body.classList.add('hide-dh');
             initSidebarFlow();
             initPipelineHandlers();
+            initCompaniesHandlers();
+            initContactsHandlers();
+            initCompanyDetailHandlers();
+            initContactDetailHandlers();
         });
         window.addEventListener('resize', () => {
             updateToggleButtonState();
